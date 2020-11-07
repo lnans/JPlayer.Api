@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using JPlayer.Data.Dto.Version;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JPlayer.Api.Controllers.Version
 {
@@ -13,6 +14,6 @@ namespace JPlayer.Api.Controllers.Version
         /// <returns></returns>
         [HttpGet("")]
         [ProducesResponseType(typeof(ApplicationVersion), 200)]
-        public IActionResult GetVersion() => this.Ok(new ApplicationVersion());
+        public IActionResult GetVersion() => this.Ok(new ApplicationVersion(typeof(Program)));
     }
 }
