@@ -1,12 +1,12 @@
-﻿using JPlayer.Data.Dao.Model.User;
+﻿using JPlayer.Data.Dao.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace JPlayer.Data.Dao.Configuration
 {
-    internal class UserModelConfiguration : IEntityTypeConfiguration<UserDao>
+    internal class UsrUserModelConfiguration : IEntityTypeConfiguration<UsrUserDao>
     {
-        public void Configure(EntityTypeBuilder<UserDao> builder)
+        public void Configure(EntityTypeBuilder<UsrUserDao> builder)
         {
             builder.ToTable("USR_USER");
 

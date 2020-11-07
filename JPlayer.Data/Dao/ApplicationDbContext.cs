@@ -1,5 +1,5 @@
 ﻿using JPlayer.Data.Dao.Configuration;
-using JPlayer.Data.Dao.Model.User;
+using JPlayer.Data.Dao.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPlayer.Data.Dao
@@ -10,11 +10,15 @@ namespace JPlayer.Data.Dao
         {
         }
 
-        public DbSet<UserDao> Users { get; set; }
+        public DbSet<UsrUserDao> Users { get; set; }
+        public DbSet<UsrProfileDao> Profiles { get; set; }
+        public DbSet<UsrFunctionDao> Functions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UsrUserModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UsrProfileModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UsrFunctionModelConfiguration());
         }
     }
 }

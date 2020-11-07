@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JPlayer.Data.Dao;
-using JPlayer.Data.Dao.Model.User;
+using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.User;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
@@ -28,7 +28,7 @@ namespace JPlayer.Business.Services
         public async Task<IEnumerable<UserCollectionItem>> GetUsers(UserCriteria userCriteria)
         {
             userCriteria ??= new UserCriteria();
-            List<UserDao> result = await this.UserFilterd(userCriteria)
+            List<UsrUserDao> result = await this.UserFilterd(userCriteria)
                 .Skip(userCriteria.Skip)
                 .Take(userCriteria.Limit)
                 .ToListAsync();
@@ -61,7 +61,7 @@ namespace JPlayer.Business.Services
         /// <returns></returns>
         public async Task<UserEntity> GetUser(int id)
         {
-            UserDao result = await this._dbContext.Users.FindAsync(id);
+            UsrUserDao result = await this._dbContext.Users.FindAsync(id);
             if (result == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
             return new UserEntity
@@ -84,21 +84,21 @@ namespace JPlayer.Business.Services
             if (await this._dbContext.Users.AnyAsync(u => u.Login == userCreateForm.Login))
                 throw new ApiAlreadyExistException(GlobalLabelCodes.UserAlreadyExist);
 
-            UserDao newUser = new UserDao
+            UsrUserDao newUsrUser = new UsrUserDao
             {
                 CreationDate = DateTime.Now,
                 Login = userCreateForm.Login
             };
 
-            await this._dbContext.Users.AddAsync(newUser);
+            await this._dbContext.Users.AddAsync(newUsrUser);
             await this._dbContext.SaveChangesAsync();
 
             return new UserEntity
             {
-                Id = newUser.Id,
-                Login = newUser.Login,
-                Deactivated = newUser.Deactivated,
-                CreationDate = newUser.CreationDate
+                Id = newUsrUser.Id,
+                Login = newUsrUser.Login,
+                Deactivated = newUsrUser.Deactivated,
+                CreationDate = newUsrUser.CreationDate
             };
         }
 
@@ -110,19 +110,19 @@ namespace JPlayer.Business.Services
         /// <returns></returns>
         public async Task<UserEntity> UpdateUser(int id, UserUpdateForm userCreateForm)
         {
-            UserDao user = await this._dbContext.Users.FindAsync(id);
-            if (user == null)
+            UsrUserDao usrUser = await this._dbContext.Users.FindAsync(id);
+            if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
-            user.Deactivated = userCreateForm.Deactivated;
+            usrUser.Deactivated = userCreateForm.Deactivated;
             await this._dbContext.SaveChangesAsync();
             return new UserEntity
             {
-                Id = user.Id,
-                Login = user.Login,
-                Deactivated = user.Deactivated,
-                CreationDate = user.CreationDate,
-                LastConnectionDate = user.LastConnectionDate
+                Id = usrUser.Id,
+                Login = usrUser.Login,
+                Deactivated = usrUser.Deactivated,
+                CreationDate = usrUser.CreationDate,
+                LastConnectionDate = usrUser.LastConnectionDate
             };
         }
 
@@ -133,17 +133,17 @@ namespace JPlayer.Business.Services
         /// <returns></returns>
         public async Task DeleteUser(int id)
         {
-            UserDao user = await this._dbContext.Users.FindAsync(id);
-            if (user == null)
+            UsrUserDao usrUser = await this._dbContext.Users.FindAsync(id);
+            if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
-            this._dbContext.Remove(user);
+            this._dbContext.Remove(usrUser);
             await this._dbContext.SaveChangesAsync();
         }
 
-        private IQueryable<UserDao> UserFilterd(UserCriteria userCriteria)
+        private IQueryable<UsrUserDao> UserFilterd(UserCriteria userCriteria)
         {
-            IQueryable<UserDao> filtered = this._dbContext.Users.AsQueryable();
+            IQueryable<UsrUserDao> filtered = this._dbContext.Users.AsQueryable();
             if (!string.IsNullOrWhiteSpace(userCriteria.Login))
                 filtered = filtered.Where(u => u.Login.ToUpper().Contains(userCriteria.Login.ToUpper()));
 

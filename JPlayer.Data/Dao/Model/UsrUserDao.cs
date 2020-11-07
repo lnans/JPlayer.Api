@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace JPlayer.Data.Dao.Model.User
+namespace JPlayer.Data.Dao.Model
 {
-    public class UserDao
+    public class UsrUserDao
     {
         public int Id { get; set; }
 
