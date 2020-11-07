@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace JPlayer.Lib
+namespace JPlayer.Lib.Contract
 {
     /// <summary>
     ///     Paginated generic object

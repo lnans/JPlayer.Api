@@ -1,4 +1,4 @@
-﻿using JPlayer.Lib;
+﻿using JPlayer.Lib.Contract;
 
 namespace JPlayer.Data.Dto.User
 {

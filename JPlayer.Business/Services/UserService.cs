@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using JPlayer.Data.Dao;
 using JPlayer.Data.Dao.Model.User;
 using JPlayer.Data.Dto.User;
-using JPlayer.Lib;
+using JPlayer.Lib.Contract;
+using JPlayer.Lib.Exception;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPlayer.Business.Services
@@ -36,6 +37,7 @@ namespace JPlayer.Business.Services
             {
                 Id = u.Id,
                 Login = u.Login,
+                Deactivated = u.Deactivated,
                 CreationDate = u.CreationDate
             });
         }
@@ -51,17 +53,41 @@ namespace JPlayer.Business.Services
             return await this.UserFilterd(userCriteria).CountAsync();
         }
 
+
+        /// <summary>
+        ///     Return a specific user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<UserEntity> GetUser(int id)
+        {
+            UserDao result = await this._dbContext.Users.FindAsync(id);
+            if (result == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+            return new UserEntity
+            {
+                Id = result.Id,
+                Login = result.Login,
+                Deactivated = result.Deactivated,
+                CreationDate = result.CreationDate,
+                LastConnectionDate = result.LastConnectionDate
+            };
+        }
+
         /// <summary>
         ///     Create a new user
         /// </summary>
-        /// <param name="userForm"></param>
+        /// <param name="userCreateForm"></param>
         /// <returns></returns>
-        public async Task<UserEntity> CreateUser(UserForm userForm)
+        public async Task<UserEntity> CreateUser(UserCreateForm userCreateForm)
         {
+            if (await this._dbContext.Users.AnyAsync(u => u.Login == userCreateForm.Login))
+                throw new ApiAlreadyExistException(GlobalLabelCodes.UserAlreadyExist);
+
             UserDao newUser = new UserDao
             {
                 CreationDate = DateTime.Now,
-                Login = userForm.Login
+                Login = userCreateForm.Login
             };
 
             await this._dbContext.Users.AddAsync(newUser);
@@ -69,9 +95,50 @@ namespace JPlayer.Business.Services
 
             return new UserEntity
             {
+                Id = newUser.Id,
                 Login = newUser.Login,
+                Deactivated = newUser.Deactivated,
                 CreationDate = newUser.CreationDate
             };
+        }
+
+        /// <summary>
+        ///     Update an user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userCreateForm"></param>
+        /// <returns></returns>
+        public async Task<UserEntity> UpdateUser(int id, UserUpdateForm userCreateForm)
+        {
+            UserDao user = await this._dbContext.Users.FindAsync(id);
+            if (user == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+
+            user.Deactivated = userCreateForm.Deactivated;
+            await this._dbContext.SaveChangesAsync();
+            return new UserEntity
+            {
+                Id = user.Id,
+                Login = user.Login,
+                Deactivated = user.Deactivated,
+                CreationDate = user.CreationDate,
+                LastConnectionDate = user.LastConnectionDate
+            };
+        }
+
+        /// <summary>
+        ///     Delete an user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task DeleteUser(int id)
+        {
+            UserDao user = await this._dbContext.Users.FindAsync(id);
+            if (user == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+
+            this._dbContext.Remove(user);
+            await this._dbContext.SaveChangesAsync();
         }
 
         private IQueryable<UserDao> UserFilterd(UserCriteria userCriteria)

@@ -5,7 +5,7 @@ namespace JPlayer.Data.Dto.User
     /// <summary>
     ///     Create user form
     /// </summary>
-    public class UserForm
+    public class UserCreateForm
     {
         /// <summary>
         ///     User login

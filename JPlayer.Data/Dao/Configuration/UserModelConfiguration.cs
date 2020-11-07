@@ -19,6 +19,12 @@ namespace JPlayer.Data.Dao.Configuration
                 .HasMaxLength(20)
                 .IsRequired();
 
+            builder.Property(table => table.Deactivated)
+                .HasColumnName("DEACTIVATED")
+                .HasColumnType("INT")
+                .HasDefaultValue(false)
+                .IsRequired();
+
             builder.Property(table => table.CreationDate)
                 .HasColumnName("CREATION_DATE")
                 .HasColumnType("DATETIME")

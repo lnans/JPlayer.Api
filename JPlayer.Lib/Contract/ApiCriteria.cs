@@ -1,4 +1,4 @@
-﻿namespace JPlayer.Lib
+﻿namespace JPlayer.Lib.Contract
 {
     /// <summary>
     ///     Base class for search
