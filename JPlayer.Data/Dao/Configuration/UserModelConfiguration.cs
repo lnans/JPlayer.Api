@@ -26,8 +26,7 @@ namespace JPlayer.Data.Dao.Configuration
 
             builder.Property(table => table.LastConnectionDate)
                 .HasColumnName("LAST_CONNECTION_DATE")
-                .HasColumnType("DATETIME")
-                .IsRequired();
+                .HasColumnType("DATETIME");
 
             builder.HasAlternateKey(table => table.Login);
         }

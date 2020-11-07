@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text.Json.Serialization;
+using JPlayer.Business.Services;
 using JPlayer.Data.Dao;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +31,8 @@ namespace JPlayer.Api.AppStart
         {
             string connString = this._configuration.GetConnectionString("sqlite");
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
-            services.AddControllers();
+            services.AddTransient<UserService>();
+            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddCustomSwaggerGen();
         }
 
@@ -65,6 +68,7 @@ namespace JPlayer.Api.AppStart
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo {Title = "JPlayer.Api", Version = "v1"});
+                options.DescribeAllParametersInCamelCase();
                 string[] docs = Directory.GetFiles(AppContext.BaseDirectory, "JPlayer.*.xml", SearchOption.TopDirectoryOnly);
                 foreach (string xmlPath in docs)
                     options.IncludeXmlComments(xmlPath);
