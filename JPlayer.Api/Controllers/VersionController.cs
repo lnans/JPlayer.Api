@@ -1,7 +1,7 @@
 ﻿using JPlayer.Data.Dto.Version;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JPlayer.Api.Controllers.Version
+namespace JPlayer.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

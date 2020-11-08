@@ -33,6 +33,7 @@ namespace JPlayer.Api.AppStart
             string connString = this._configuration.GetConnectionString("sqlite");
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
             services.AddTransient<UserService>();
+            services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
             services.AddTransient<ObjectMapper>();
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

@@ -5,7 +5,7 @@ using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JPlayer.Api.Controllers.User
+namespace JPlayer.Api.Controllers
 {
     /// <summary>
     ///     User management controller
