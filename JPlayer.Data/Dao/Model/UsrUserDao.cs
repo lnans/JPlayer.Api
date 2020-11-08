@@ -9,6 +9,8 @@ namespace JPlayer.Data.Dao.Model
 
         public string Login { get; set; }
 
+        public string Password { get; set; }
+
         public bool Deactivated { get; set; }
 
         public DateTime CreationDate { get; set; }

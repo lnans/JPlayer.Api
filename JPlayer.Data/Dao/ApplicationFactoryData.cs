@@ -1,5 +1,6 @@
 ﻿using System;
 using JPlayer.Data.Dao.Model;
+using JPlayer.Lib.Crypto;
 
 namespace JPlayer.Data.Dao
 {
@@ -57,6 +58,7 @@ namespace JPlayer.Data.Dao
                 {
                     Id = 1,
                     Login = "UserAdmin",
+                    Password = PasswordHelper.Crypt("UserAdmin","UserAdmin"),
                     Deactivated = false,
                     CreationDate = DateTime.Now,
                     ReadOnly = true

@@ -19,6 +19,12 @@ namespace JPlayer.Data.Dao.Configuration
                 .HasMaxLength(20)
                 .IsRequired();
 
+            builder.Property(table => table.Password)
+                .HasColumnName("PASSWORD")
+                .HasColumnType("NVARCHAR(128)")
+                .HasMaxLength(128)
+                .IsRequired();
+
             builder.Property(table => table.Deactivated)
                 .HasColumnName("DEACTIVATED")
                 .HasColumnType("INT")

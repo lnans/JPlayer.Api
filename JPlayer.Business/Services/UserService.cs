@@ -7,6 +7,7 @@ using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.Profile;
 using JPlayer.Data.Dto.User;
 using JPlayer.Lib.Contract;
+using JPlayer.Lib.Crypto;
 using JPlayer.Lib.Exception;
 using JPlayer.Lib.Mapper;
 using Microsoft.EntityFrameworkCore;
@@ -85,7 +86,8 @@ namespace JPlayer.Business.Services
             UsrUserDao newUsrUser = new UsrUserDao
             {
                 CreationDate = DateTime.Now,
-                Login = userCreateForm.Login
+                Login = userCreateForm.Login,
+                Password = PasswordHelper.Crypt(userCreateForm.Login, userCreateForm.Password)
             };
 
             List<UsrUserProfileDao> userProfiles = new List<UsrUserProfileDao>();

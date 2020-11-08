@@ -16,6 +16,13 @@ namespace JPlayer.Data.Dto.User
         public string Login { get; set; }
 
         /// <summary>
+        ///     User Password
+        /// </summary>
+        [Required]
+        [MaxLength(128)]
+        public string Password { get; set; }
+
+        /// <summary>
         ///     Profiles to assign
         /// </summary>
         [Required]
