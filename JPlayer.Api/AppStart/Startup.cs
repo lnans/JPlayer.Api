@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 using JPlayer.Business.Services;
 using JPlayer.Data.Dao;
+using JPlayer.Lib.Mapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,8 @@ namespace JPlayer.Api.AppStart
             string connString = this._configuration.GetConnectionString("sqlite");
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
             services.AddTransient<UserService>();
+            services.AddTransient<FunctionService>();
+            services.AddTransient<ObjectMapper>();
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddCustomSwaggerGen();
         }

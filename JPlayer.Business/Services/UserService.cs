@@ -7,6 +7,7 @@ using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.User;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
+using JPlayer.Lib.Mapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPlayer.Business.Services
@@ -14,10 +15,12 @@ namespace JPlayer.Business.Services
     public class UserService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly ObjectMapper _mapper;
 
-        public UserService(ApplicationDbContext dbContext)
+        public UserService(ApplicationDbContext dbContext, ObjectMapper mapper)
         {
             this._dbContext = dbContext;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -33,13 +36,7 @@ namespace JPlayer.Business.Services
                 .Take(userCriteria.Limit)
                 .ToListAsync();
 
-            return result.Select(u => new UserCollectionItem
-            {
-                Id = u.Id,
-                Login = u.Login,
-                Deactivated = u.Deactivated,
-                CreationDate = u.CreationDate
-            });
+            return result.Select(user => this._mapper.Map<UserCollectionItem, UsrUserDao>(user));
         }
 
         /// <summary>
@@ -64,14 +61,8 @@ namespace JPlayer.Business.Services
             UsrUserDao result = await this._dbContext.Users.FindAsync(id);
             if (result == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
-            return new UserEntity
-            {
-                Id = result.Id,
-                Login = result.Login,
-                Deactivated = result.Deactivated,
-                CreationDate = result.CreationDate,
-                LastConnectionDate = result.LastConnectionDate
-            };
+
+            return this._mapper.Map<UserEntity, UsrUserDao>(result);
         }
 
         /// <summary>
@@ -93,13 +84,7 @@ namespace JPlayer.Business.Services
             await this._dbContext.Users.AddAsync(newUsrUser);
             await this._dbContext.SaveChangesAsync();
 
-            return new UserEntity
-            {
-                Id = newUsrUser.Id,
-                Login = newUsrUser.Login,
-                Deactivated = newUsrUser.Deactivated,
-                CreationDate = newUsrUser.CreationDate
-            };
+            return this._mapper.Map<UserEntity, UsrUserDao>(newUsrUser);
         }
 
         /// <summary>
@@ -116,14 +101,7 @@ namespace JPlayer.Business.Services
 
             usrUser.Deactivated = userCreateForm.Deactivated;
             await this._dbContext.SaveChangesAsync();
-            return new UserEntity
-            {
-                Id = usrUser.Id,
-                Login = usrUser.Login,
-                Deactivated = usrUser.Deactivated,
-                CreationDate = usrUser.CreationDate,
-                LastConnectionDate = usrUser.LastConnectionDate
-            };
+            return this._mapper.Map<UserEntity, UsrUserDao>(usrUser);
         }
 
         /// <summary>
