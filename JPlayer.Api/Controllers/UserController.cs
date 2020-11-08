@@ -71,9 +71,11 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">User created</response>
         /// <response code="400">An user already exist with this login</response>
+        /// <response code="404">A given profile doesnt exist</response>
         [HttpPost("")]
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 400)]
+        [ProducesResponseType(typeof(ApiResult<string>), 404)]
         public async Task<IActionResult> Create([FromBody] UserCreateForm userCreateForm)
         {
             try
@@ -85,6 +87,10 @@ namespace JPlayer.Api.Controllers
             {
                 return this.BadRequest(e.Message.AsApiError());
             }
+            catch (ApiNotFoundException e)
+            {
+                return this.NotFound(e.Message.AsApiError());
+            }
         }
 
         /// <summary>
@@ -94,7 +100,7 @@ namespace JPlayer.Api.Controllers
         /// <param name="userUpdateForm"></param>
         /// <returns></returns>
         /// <response code="200">User updated</response>
-        /// <response code="404">User not found</response>
+        /// <response code="404">User not found, or given profiles doesnt exist</response>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 404)]

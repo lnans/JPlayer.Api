@@ -10,7 +10,7 @@ namespace JPlayer.Data.Dto.User
         /// <summary>
         ///     User id
         /// </summary>
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         ///     User login

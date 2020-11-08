@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using JPlayer.Data.Dto.Profile;
 
 namespace JPlayer.Data.Dto.User
 {
@@ -31,5 +33,10 @@ namespace JPlayer.Data.Dto.User
         ///     Last connection of the user
         /// </summary>
         public DateTime? LastConnectionDate { get; set; }
+
+        /// <summary>
+        ///     Profiles of the user
+        /// </summary>
+        public IEnumerable<ProfileCollectionItem> Profiles { get; set; }
     }
 }

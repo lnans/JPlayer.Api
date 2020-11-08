@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace JPlayer.Data.Dto.User
 {
@@ -13,5 +14,11 @@ namespace JPlayer.Data.Dto.User
         [Required]
         [MaxLength(20)]
         public string Login { get; set; }
+
+        /// <summary>
+        ///     Profiles to assign
+        /// </summary>
+        [Required]
+        public IEnumerable<int> Profiles { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace JPlayer.Data.Dto.User
 {
@@ -8,9 +9,9 @@ namespace JPlayer.Data.Dto.User
     public class UserUpdateForm
     {
         /// <summary>
-        ///     User deactivation state
+        ///     Profiles of the user
         /// </summary>
         [Required]
-        public bool Deactivated { get; set; }
+        public IEnumerable<int> Profiles { get; set; }
     }
 }

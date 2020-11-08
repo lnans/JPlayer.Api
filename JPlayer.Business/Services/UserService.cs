@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JPlayer.Data.Dao;
 using JPlayer.Data.Dao.Model;
+using JPlayer.Data.Dto.Profile;
 using JPlayer.Data.Dto.User;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
@@ -58,11 +59,17 @@ namespace JPlayer.Business.Services
         /// <returns></returns>
         public async Task<UserEntity> GetUser(int id)
         {
-            UsrUserDao result = await this._dbContext.Users.FindAsync(id);
-            if (result == null)
+            UsrUserDao user = await this._dbContext.Users
+                .Include(u => u.UserProfiles)
+                .ThenInclude(up => up.Profile)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
-            return this._mapper.Map<UserEntity, UsrUserDao>(result);
+            UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(user);
+            result.Profiles = user.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            return result;
         }
 
         /// <summary>
@@ -81,10 +88,23 @@ namespace JPlayer.Business.Services
                 Login = userCreateForm.Login
             };
 
+            List<UsrUserProfileDao> userProfiles = new List<UsrUserProfileDao>();
+            foreach (int profileId in userCreateForm.Profiles)
+            {
+                UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(profileId);
+                if (profile == null)
+                    throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+
+                userProfiles.Add(new UsrUserProfileDao {User = newUsrUser, Profile = profile});
+            }
+
+            newUsrUser.UserProfiles = userProfiles;
             await this._dbContext.Users.AddAsync(newUsrUser);
             await this._dbContext.SaveChangesAsync();
 
-            return this._mapper.Map<UserEntity, UsrUserDao>(newUsrUser);
+            UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(newUsrUser);
+            result.Profiles = newUsrUser.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            return result;
         }
 
         /// <summary>
@@ -99,9 +119,31 @@ namespace JPlayer.Business.Services
             if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
-            usrUser.Deactivated = userCreateForm.Deactivated;
+            // Get current profiles of the user
+            IQueryable<UsrUserProfileDao> userProfiles = this._dbContext.UserProfiles.Where(pf => pf.UserId == id);
+            foreach (int profileId in userCreateForm.Profiles)
+            {
+                UsrProfileDao profile = await this._dbContext.Profiles.FirstOrDefaultAsync(f => f.Id == profileId);
+                if (profile == null)
+                    throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+
+                // Add profiles to the user if not exist
+                if (!userProfiles.Any(up => up.ProfileId == profileId))
+                    await this._dbContext.UserProfiles.AddAsync(new UsrUserProfileDao {UserId = id, ProfileId = profileId});
+            }
+
+            // Remove a function from the profile if not given
+            foreach (UsrUserProfileDao userProfile in userProfiles)
+            {
+                if (userCreateForm.Profiles.All(p => p != userProfile.ProfileId))
+                    this._dbContext.UserProfiles.Remove(userProfile);
+            }
+
             await this._dbContext.SaveChangesAsync();
-            return this._mapper.Map<UserEntity, UsrUserDao>(usrUser);
+
+            UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(usrUser);
+            result.Profiles = usrUser.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            return result;
         }
 
         /// <summary>
