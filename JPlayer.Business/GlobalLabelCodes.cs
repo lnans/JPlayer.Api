@@ -4,9 +4,11 @@
     {
         public const string UserNotFound = "userNotFound";
         public const string UserAlreadyExist = "userAlreadyExist";
+        public const string UserReadOnly = "userReadOnly";
 
         public const string ProfileNotFound = "profileNotFound";
         public const string ProfileAlreadyExist = "profileAlreadyExist";
+        public const string ProfileReadOnly = "profileReadOnly";
 
         public const string FunctionNotFound = "functionNotFound";
     }

@@ -100,9 +100,11 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">Profile updated</response>
         /// <response code="404">One or more given functions not exist</response>
+        /// <response code="409">Profile is in read only mode</response>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiResult<string>), 409)]
         public async Task<IActionResult> UpdateOne(int id, [FromBody] ProfileUpdateForm updateForm)
         {
             try
@@ -114,6 +116,10 @@ namespace JPlayer.Api.Controllers
             {
                 return this.NotFound(e.Message.AsApiError());
             }
+            catch (ApiException e)
+            {
+                return this.Conflict(e.Message.AsApiError());
+            }
         }
 
         /// <summary>
@@ -123,9 +129,11 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">Profile deleted</response>
         /// <response code="404">Profile not found</response>
+        /// <response code="409">Profile is in read only mode</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiResult<string>), 409)]
         public async Task<IActionResult> DeleteOne(int id)
         {
             try
@@ -136,6 +144,10 @@ namespace JPlayer.Api.Controllers
             catch (ApiNotFoundException e)
             {
                 return this.NotFound(e.Message.AsApiError());
+            }
+            catch (ApiException e)
+            {
+                return this.Conflict(e.Message.AsApiError());
             }
         }
     }

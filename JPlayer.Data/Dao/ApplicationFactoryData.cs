@@ -43,7 +43,8 @@ namespace JPlayer.Data.Dao
                 new UsrProfileDao
                 {
                     Id = 1,
-                    Name = "Administrator"
+                    Name = "Administrator",
+                    ReadOnly = true
                 }
             };
         }
@@ -57,7 +58,8 @@ namespace JPlayer.Data.Dao
                     Id = 1,
                     Login = "UserAdmin",
                     Deactivated = false,
-                    CreationDate = DateTime.Now
+                    CreationDate = DateTime.Now,
+                    ReadOnly = true
                 }
             };
         }

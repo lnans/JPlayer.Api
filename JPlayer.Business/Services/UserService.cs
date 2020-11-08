@@ -119,6 +119,9 @@ namespace JPlayer.Business.Services
             if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
+            if(usrUser.ReadOnly)
+                throw new ApiException(GlobalLabelCodes.UserReadOnly);
+
             // Get current profiles of the user
             IQueryable<UsrUserProfileDao> userProfiles = this._dbContext.UserProfiles.Where(pf => pf.UserId == id);
             foreach (int profileId in userCreateForm.Profiles)
@@ -156,6 +159,9 @@ namespace JPlayer.Business.Services
             UsrUserDao usrUser = await this._dbContext.Users.FindAsync(id);
             if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+
+            if (usrUser.ReadOnly)
+                throw new ApiException(GlobalLabelCodes.UserReadOnly);
 
             this._dbContext.Remove(usrUser);
             await this._dbContext.SaveChangesAsync();

@@ -14,5 +14,10 @@
         ///     Profile name
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        ///     Determinate if the profile is in read only mode
+        /// </summary>
+        public bool ReadOnly { get; set; }
     }
 }

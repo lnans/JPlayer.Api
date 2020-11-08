@@ -38,5 +38,10 @@ namespace JPlayer.Data.Dto.User
         ///     Profiles of the user
         /// </summary>
         public IEnumerable<ProfileCollectionItem> Profiles { get; set; }
+
+        /// <summary>
+        ///     Determinate if the user is in read only mode
+        /// </summary>
+        public bool ReadOnly { get; set; }
     }
 }

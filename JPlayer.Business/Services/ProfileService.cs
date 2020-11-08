@@ -122,6 +122,9 @@ namespace JPlayer.Business.Services
             if (profile == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
 
+            if (profile.ReadOnly)
+                throw new ApiException(GlobalLabelCodes.ProfileReadOnly);
+
             // Get current functions of the profile
             IQueryable<UsrProfileFunctionDao> profileFunctions = this._dbContext.ProfileFUnctions.Where(pf => pf.ProfileId == id);
             foreach (int functionId in updateForm.FunctionIds)
@@ -159,6 +162,9 @@ namespace JPlayer.Business.Services
             UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(id);
             if (profile == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+
+            if (profile.ReadOnly)
+                throw new ApiException(GlobalLabelCodes.ProfileReadOnly);
 
             this._dbContext.Profiles.Remove(profile);
             await this._dbContext.SaveChangesAsync();

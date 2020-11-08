@@ -16,5 +16,7 @@ namespace JPlayer.Data.Dao.Model
         public DateTime? LastConnectionDate { get; set; }
 
         public virtual ICollection<UsrUserProfileDao> UserProfiles { get; set; }
+
+        public bool ReadOnly { get; set; }
     }
 }

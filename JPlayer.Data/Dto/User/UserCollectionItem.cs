@@ -26,5 +26,10 @@ namespace JPlayer.Data.Dto.User
         ///     User creation date
         /// </summary>
         public DateTime CreationDate { get; set; }
+
+        /// <summary>
+        ///     Determinate if the user is in read only mode
+        /// </summary>
+        public bool ReadOnly { get; set; }
     }
 }

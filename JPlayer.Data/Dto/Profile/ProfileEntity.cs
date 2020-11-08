@@ -22,5 +22,10 @@ namespace JPlayer.Data.Dto.Profile
         ///     Functions assigned to this profile
         /// </summary>
         public IEnumerable<FunctionCollectionItem> Functions { get; set; }
+
+        /// <summary>
+        ///     Determinate if the profile is in read only mode
+        /// </summary>
+        public bool ReadOnly { get; set; }
     }
 }

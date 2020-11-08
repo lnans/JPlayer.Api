@@ -34,6 +34,12 @@ namespace JPlayer.Data.Dao.Configuration
                 .HasColumnName("LAST_CONNECTION_DATE")
                 .HasColumnType("DATETIME");
 
+            builder.Property(table => table.ReadOnly)
+                .HasColumnName("READONLY")
+                .HasColumnType("INT")
+                .HasDefaultValue(false)
+                .IsRequired();
+
             builder.HasAlternateKey(table => table.Login);
         }
     }

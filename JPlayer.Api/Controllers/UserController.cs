@@ -101,9 +101,11 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">User updated</response>
         /// <response code="404">User not found, or given profiles doesnt exist</response>
+        /// <response code="409">User is in read only mode</response>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiResult<string>), 409)]
         public async Task<IActionResult> Update(int id, [FromBody] UserUpdateForm userUpdateForm)
         {
             try
@@ -115,6 +117,10 @@ namespace JPlayer.Api.Controllers
             {
                 return this.NotFound(e.Message.AsApiError());
             }
+            catch (ApiException e)
+            {
+                return this.Conflict(e.Message.AsApiError());
+            }
         }
 
         /// <summary>
@@ -123,10 +129,12 @@ namespace JPlayer.Api.Controllers
         /// <param name="id"></param>
         /// <response code="200">User deleted</response>
         /// <response code="404">User not found</response>
+        /// <response code="409">User is in read only mode</response>
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiResult<string>), 409)]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -137,6 +145,10 @@ namespace JPlayer.Api.Controllers
             catch (ApiNotFoundException e)
             {
                 return this.NotFound(e.Message.AsApiError());
+            }
+            catch (ApiException e)
+            {
+                return this.Conflict(e.Message.AsApiError());
             }
         }
     }

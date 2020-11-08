@@ -19,6 +19,12 @@ namespace JPlayer.Data.Dao.Configuration
                 .HasMaxLength(50)
                 .IsRequired();
 
+            builder.Property(table => table.ReadOnly)
+                .HasColumnName("READONLY")
+                .HasColumnType("INT")
+                .HasDefaultValue(false)
+                .IsRequired();
+
             builder.HasAlternateKey(table => table.Name);
         }
     }

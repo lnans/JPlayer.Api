@@ -11,5 +11,7 @@ namespace JPlayer.Data.Dao.Model
         public virtual ICollection<UsrUserProfileDao> UserProfiles { get; set; }
 
         public virtual ICollection<UsrProfileFunctionDao> ProfileFunctions { get; set; }
+
+        public bool ReadOnly { get; set; }
     }
 }
