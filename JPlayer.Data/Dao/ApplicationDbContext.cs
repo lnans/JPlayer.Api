@@ -23,6 +23,12 @@ namespace JPlayer.Data.Dao
             modelBuilder.ApplyConfiguration(new UsrProfileModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrProfileFunctionModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrFunctionModelConfiguration());
+
+            modelBuilder.Entity<UsrFunctionDao>().HasData(ApplicationFactoryData.Functions());
+            modelBuilder.Entity<UsrProfileDao>().HasData(ApplicationFactoryData.Profiles());
+            modelBuilder.Entity<UsrUserDao>().HasData(ApplicationFactoryData.Users());
+            modelBuilder.Entity<UsrProfileFunctionDao>().HasData(ApplicationFactoryData.ProfileFunctions());
+            modelBuilder.Entity<UsrUserProfileDao>().HasData(ApplicationFactoryData.UserProfiles());
         }
     }
 }
