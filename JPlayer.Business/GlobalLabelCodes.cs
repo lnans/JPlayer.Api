@@ -7,5 +7,7 @@
 
         public const string ProfileNotFound = "profileNotFound";
         public const string ProfileAlreadyExist = "profileAlreadyExist";
+
+        public const string FunctionNotFound = "functionNotFound";
     }
 }

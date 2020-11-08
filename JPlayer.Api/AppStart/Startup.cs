@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Logging.Debug;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 namespace JPlayer.Api.AppStart
@@ -31,7 +35,12 @@ namespace JPlayer.Api.AppStart
         public void ConfigureServices(IServiceCollection services)
         {
             string connString = this._configuration.GetConnectionString("sqlite");
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlite(connString);
+                options.EnableSensitiveDataLogging();
+                options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            });
             services.AddTransient<UserService>();
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();

@@ -72,6 +72,98 @@ namespace JPlayer.Business.Services
             return result;
         }
 
+        /// <summary>
+        ///     Create a profile
+        /// </summary>
+        /// <param name="createForm"></param>
+        /// <returns></returns>
+        public async Task<ProfileEntity> CreateOne(ProfileCreateForm createForm)
+        {
+            // Check if profile already exist
+            if (await this._dbContext.Profiles.AnyAsync(p => p.Name.ToLower() == createForm.Name.ToLower()))
+                throw new ApiNotFoundException(GlobalLabelCodes.ProfileAlreadyExist);
+
+            UsrProfileDao profile = new UsrProfileDao
+            {
+                Name = createForm.Name
+            };
+
+            List<UsrProfileFunctionDao> profileFunctions = new List<UsrProfileFunctionDao>();
+            foreach (int functionId in createForm.FunctionIds)
+            {
+                UsrFunctionDao function = await this._dbContext.Functions.FirstOrDefaultAsync(f => f.Id == functionId);
+                if (function == null)
+                    throw new ApiNotFoundException(GlobalLabelCodes.FunctionNotFound);
+                profileFunctions.Add(new UsrProfileFunctionDao
+                {
+                    Function = function,
+                    Profile = profile
+                });
+            }
+
+            profile.ProfileFunctions = profileFunctions;
+            await this._dbContext.Profiles.AddAsync(profile);
+            await this._dbContext.SaveChangesAsync();
+
+            ProfileEntity result = this._mapper.Map<ProfileEntity, UsrProfileDao>(profile);
+            result.Functions = profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
+            return result;
+        }
+
+        /// <summary>
+        ///     Update a specific profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="updateForm"></param>
+        /// <returns></returns>
+        public async Task<ProfileEntity> UpdateOne(int id, ProfileUpdateForm updateForm)
+        {
+            UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(id);
+            if (profile == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+
+            // Get current functions of the profile
+            IQueryable<UsrProfileFunctionDao> profileFunctions = this._dbContext.ProfileFUnctions.Where(pf => pf.ProfileId == id);
+            foreach (int functionId in updateForm.FunctionIds)
+            {
+                UsrFunctionDao function = await this._dbContext.Functions.FirstOrDefaultAsync(f => f.Id == functionId);
+                if (function == null)
+                    throw new ApiNotFoundException(GlobalLabelCodes.FunctionNotFound);
+
+                // Add function to the profile if not exist
+                if (!profileFunctions.Any(pf => pf.FunctionId == functionId))
+                    await this._dbContext.ProfileFUnctions.AddAsync(new UsrProfileFunctionDao {ProfileId = id, FunctionId = functionId});
+            }
+
+            // Remove a function from the profile if not given
+            foreach (UsrProfileFunctionDao profileFunction in profileFunctions)
+            {
+                if (updateForm.FunctionIds.All(r => r != profileFunction.FunctionId))
+                    this._dbContext.ProfileFUnctions.Remove(profileFunction);
+            }
+
+            await this._dbContext.SaveChangesAsync();
+
+            ProfileEntity result = this._mapper.Map<ProfileEntity, UsrProfileDao>(profile);
+            result.Functions = profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
+            return result;
+        }
+
+        /// <summary>
+        ///     Delete a specific profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task DeleteOne(int id)
+        {
+            UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(id);
+            if (profile == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+
+            this._dbContext.Profiles.Remove(profile);
+            await this._dbContext.SaveChangesAsync();
+        }
+
         private IQueryable<UsrProfileDao> ProfileFiltered(ProfileCriteria criteria)
         {
             IQueryable<UsrProfileDao> filtered = this._dbContext.Profiles.AsQueryable();

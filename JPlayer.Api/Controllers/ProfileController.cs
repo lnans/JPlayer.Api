@@ -62,5 +62,81 @@ namespace JPlayer.Api.Controllers
                 return this.NotFound(e.Message.AsApiError());
             }
         }
+
+        /// <summary>
+        ///     Create a new profile
+        /// </summary>
+        /// <param name="createForm"></param>
+        /// <returns></returns>
+        /// <response code="200">Profile created</response>
+        /// <response code="400">Profile name already exist</response>
+        /// <response code="404">One or more given functions not exist</response>
+        [HttpPost("")]
+        [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
+        [ProducesResponseType(typeof(ApiResult<string>), 400)]
+        [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        public async Task<IActionResult> CreateOne([FromBody] ProfileCreateForm createForm)
+        {
+            try
+            {
+                ProfileEntity result = await this._profileService.CreateOne(createForm);
+                return this.Ok(result.AsApiResult("profileEntity"));
+            }
+            catch (ApiNotFoundException e)
+            {
+                return this.NotFound(e.Message.AsApiError());
+            }
+            catch (ApiAlreadyExistException e)
+            {
+                return this.BadRequest(e.Message.AsApiError());
+            }
+        }
+
+        /// <summary>
+        ///     Update a specific profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="updateForm"></param>
+        /// <returns></returns>
+        /// <response code="200">Profile updated</response>
+        /// <response code="404">One or more given functions not exist</response>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
+        [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        public async Task<IActionResult> UpdateOne(int id, [FromBody] ProfileUpdateForm updateForm)
+        {
+            try
+            {
+                ProfileEntity result = await this._profileService.UpdateOne(id, updateForm);
+                return this.Ok(result.AsApiResult("profileEntity"));
+            }
+            catch (ApiNotFoundException e)
+            {
+                return this.NotFound(e.Message.AsApiError());
+            }
+        }
+
+        /// <summary>
+        ///     Delete a specific profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <response code="200">Profile deleted</response>
+        /// <response code="404">Profile not found</response>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        public async Task<IActionResult> DeleteOne(int id)
+        {
+            try
+            {
+                await this._profileService.DeleteOne(id);
+                return this.Ok(true.AsApiResult());
+            }
+            catch (ApiNotFoundException e)
+            {
+                return this.NotFound(e.Message.AsApiError());
+            }
+        }
     }
 }
