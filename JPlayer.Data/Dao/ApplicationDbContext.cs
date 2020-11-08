@@ -11,13 +11,17 @@ namespace JPlayer.Data.Dao
         }
 
         public DbSet<UsrUserDao> Users { get; set; }
+        public DbSet<UsrUserProfileDao> UserProfiles { get; set; }
         public DbSet<UsrProfileDao> Profiles { get; set; }
+        public DbSet<UsrProfileFunctionDao> ProfileFUnctions { get; set; }
         public DbSet<UsrFunctionDao> Functions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UsrUserModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UsrUserProfileModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrProfileModelConfiguration());
+            modelBuilder.ApplyConfiguration(new UsrProfileFunctionModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrFunctionModelConfiguration());
         }
     }

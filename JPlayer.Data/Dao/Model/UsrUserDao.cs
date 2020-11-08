@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace JPlayer.Data.Dao.Model
 {
@@ -13,5 +14,7 @@ namespace JPlayer.Data.Dao.Model
         public DateTime CreationDate { get; set; }
 
         public DateTime? LastConnectionDate { get; set; }
+
+        public virtual ICollection<UsrUserProfileDao> UserProfiles { get; set; }
     }
 }

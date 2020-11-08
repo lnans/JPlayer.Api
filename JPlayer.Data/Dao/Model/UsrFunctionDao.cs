@@ -1,4 +1,6 @@
-﻿namespace JPlayer.Data.Dao.Model
+﻿using System.Collections.Generic;
+
+namespace JPlayer.Data.Dao.Model
 {
     public class UsrFunctionDao
     {
@@ -7,5 +9,7 @@
         public string FunctionCode { get; set; }
 
         public string Name { get; set; }
+
+        public virtual ICollection<UsrProfileFunctionDao> ProfileFunctions { get; set; }
     }
 }
