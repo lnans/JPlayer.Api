@@ -26,9 +26,8 @@ namespace JPlayer.Api.Middleware
             };
 
             httpContext.Response.ContentType = "application/json";
-            await using Utf8JsonWriter writer = new Utf8JsonWriter(httpContext.Response.Body);
-            JsonSerializer.Serialize(writer, error);
-            await writer.FlushAsync().ConfigureAwait(false);
+            await JsonSerializer.SerializeAsync(httpContext.Response.Body, error);
+            await httpContext.Response.Body.FlushAsync().ConfigureAwait(false);
         }
     }
 }

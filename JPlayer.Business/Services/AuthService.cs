@@ -8,6 +8,7 @@ using JPlayer.Data.Dao;
 using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.Credentials;
 using JPlayer.Lib.Crypto;
+using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -68,6 +69,25 @@ namespace JPlayer.Business.Services
                 Login = user.Login,
                 Functions = roles
             };
+        }
+
+        /// <summary>
+        ///     Update credentials for the current logged user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="credentialsUpdateForm"></param>
+        /// <returns></returns>
+        public async Task UpdateCredentials(int userId, CredentialsUpdateForm credentialsUpdateForm)
+        {
+            UsrUserDao user = await this._dbContext.Users.FindAsync(userId);
+            if (user == null)
+                throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+
+            if (!PasswordHelper.Check(user.Login, credentialsUpdateForm.CurrentPassword, user.Password))
+                throw new AuthenticationException(GlobalLabelCodes.AuthWrongPassword);
+
+            user.Password = PasswordHelper.Crypt(user.Login, credentialsUpdateForm.NewPassword);
+            await this._dbContext.SaveChangesAsync();
         }
     }
 }

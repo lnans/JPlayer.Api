@@ -3,22 +3,22 @@
 namespace JPlayer.Data.Dto.Credentials
 {
     /// <summary>
-    ///     Credentials form
+    ///     Update credentials form
     /// </summary>
-    public class CredentialsForm
+    public class CredentialsUpdateForm
     {
         /// <summary>
-        ///     User login
-        /// </summary>
-        [Required]
-        [MaxLength(20)]
-        public string Login { get; set; }
-
-        /// <summary>
-        ///     User password
+        ///     Current password
         /// </summary>
         [Required]
         [MaxLength(128)]
-        public string Password { get; set; }
+        public string CurrentPassword { get; set; }
+
+        /// <summary>
+        ///     New password
+        /// </summary>
+        [Required]
+        [MaxLength(128)]
+        public string NewPassword { get; set; }
     }
 }
