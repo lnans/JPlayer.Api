@@ -121,7 +121,7 @@ namespace JPlayer.Business.Services
             if (usrUser == null)
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
 
-            if(usrUser.ReadOnly)
+            if (usrUser.ReadOnly)
                 throw new ApiException(GlobalLabelCodes.UserReadOnly);
 
             // Get current profiles of the user

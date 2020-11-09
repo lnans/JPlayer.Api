@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using JPlayer.Business.Services;
+using JPlayer.Data;
 using JPlayer.Data.Dto.Function;
 using JPlayer.Lib.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JPlayer.Api.Controllers
@@ -25,6 +27,7 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">Functions list returned</response>
         [HttpGet("")]
+        [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<FunctionCollectionItem>>), 200)]
         public async Task<IActionResult> GetMany([FromQuery] FunctionCriteria functionCriteria)
         {

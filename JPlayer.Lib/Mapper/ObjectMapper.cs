@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+// ReSharper disable PossibleNullReferenceException
 
 namespace JPlayer.Lib.Mapper
 {
@@ -12,10 +13,7 @@ namespace JPlayer.Lib.Mapper
         private readonly ConcurrentDictionary<Tuple<Type, Type>, Delegate> _mapCache =
             new ConcurrentDictionary<Tuple<Type, Type>, Delegate>();
 
-        public TDest Map<TDest, TSource>(TSource source) where TDest : new()
-        {
-            return this.Map(source, new TDest());
-        }
+        public TDest Map<TDest, TSource>(TSource source) where TDest : new() => this.Map(source, new TDest());
 
         public TDest Map<TSource, TDest>(TSource source, TDest dest)
         {

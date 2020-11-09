@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using JPlayer.Business.Services;
+using JPlayer.Data;
 using JPlayer.Data.Dto.Profile;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JPlayer.Api.Controllers
@@ -26,6 +28,7 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">Profile list returned</response>
         [HttpGet("")]
+        [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<ProfileCollectionItem>>), 200)]
         public async Task<IActionResult> GetMany([FromQuery] ProfileCriteria criteria)
         {
@@ -48,8 +51,9 @@ namespace JPlayer.Api.Controllers
         /// <response code="200">Profile returned</response>
         /// <response code="404">Profile not found</response>
         [HttpGet("{id}")]
+        [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
-        [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiError), 404)]
         public async Task<IActionResult> GetOne(int id)
         {
             try
@@ -59,7 +63,7 @@ namespace JPlayer.Api.Controllers
             }
             catch (ApiNotFoundException e)
             {
-                return this.NotFound(e.Message.AsApiError());
+                return this.NotFound(e.AsApiError());
             }
         }
 
@@ -72,9 +76,10 @@ namespace JPlayer.Api.Controllers
         /// <response code="400">Profile name already exist</response>
         /// <response code="404">One or more given functions not exist</response>
         [HttpPost("")]
+        [Authorize(Roles = JPlayerRoles.ProfileWrite)]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
-        [ProducesResponseType(typeof(ApiResult<string>), 400)]
-        [ProducesResponseType(typeof(ApiResult<string>), 404)]
+        [ProducesResponseType(typeof(ApiError), 400)]
+        [ProducesResponseType(typeof(ApiError), 404)]
         public async Task<IActionResult> CreateOne([FromBody] ProfileCreateForm createForm)
         {
             try
@@ -84,11 +89,11 @@ namespace JPlayer.Api.Controllers
             }
             catch (ApiNotFoundException e)
             {
-                return this.NotFound(e.Message.AsApiError());
+                return this.NotFound(e.AsApiError());
             }
             catch (ApiAlreadyExistException e)
             {
-                return this.BadRequest(e.Message.AsApiError());
+                return this.BadRequest(e.AsApiError());
             }
         }
 
@@ -102,9 +107,10 @@ namespace JPlayer.Api.Controllers
         /// <response code="404">One or more given functions not exist</response>
         /// <response code="409">Profile is in read only mode</response>
         [HttpPut("{id}")]
+        [Authorize(Roles = JPlayerRoles.ProfileWrite)]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
-        [ProducesResponseType(typeof(ApiResult<string>), 404)]
-        [ProducesResponseType(typeof(ApiResult<string>), 409)]
+        [ProducesResponseType(typeof(ApiError), 404)]
+        [ProducesResponseType(typeof(ApiError), 409)]
         public async Task<IActionResult> UpdateOne(int id, [FromBody] ProfileUpdateForm updateForm)
         {
             try
@@ -114,11 +120,11 @@ namespace JPlayer.Api.Controllers
             }
             catch (ApiNotFoundException e)
             {
-                return this.NotFound(e.Message.AsApiError());
+                return this.NotFound(e.AsApiError());
             }
             catch (ApiException e)
             {
-                return this.Conflict(e.Message.AsApiError());
+                return this.Conflict(e.AsApiError());
             }
         }
 
@@ -131,9 +137,10 @@ namespace JPlayer.Api.Controllers
         /// <response code="404">Profile not found</response>
         /// <response code="409">Profile is in read only mode</response>
         [HttpDelete("{id}")]
+        [Authorize(Roles = JPlayerRoles.ProfileWrite)]
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
-        [ProducesResponseType(typeof(ApiResult<string>), 404)]
-        [ProducesResponseType(typeof(ApiResult<string>), 409)]
+        [ProducesResponseType(typeof(ApiError), 404)]
+        [ProducesResponseType(typeof(ApiError), 409)]
         public async Task<IActionResult> DeleteOne(int id)
         {
             try
@@ -143,11 +150,11 @@ namespace JPlayer.Api.Controllers
             }
             catch (ApiNotFoundException e)
             {
-                return this.NotFound(e.Message.AsApiError());
+                return this.NotFound(e.AsApiError());
             }
             catch (ApiException e)
             {
-                return this.Conflict(e.Message.AsApiError());
+                return this.Conflict(e.AsApiError());
             }
         }
     }

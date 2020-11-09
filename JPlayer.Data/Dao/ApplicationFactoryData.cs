@@ -13,25 +13,25 @@ namespace JPlayer.Data.Dao
                 new UsrFunctionDao
                 {
                     Id = 1,
-                    FunctionCode = "USR_USER_READ",
+                    FunctionCode = JPlayerRoles.UserRead,
                     Name = "Ability to get users information"
                 },
                 new UsrFunctionDao
                 {
                     Id = 2,
-                    FunctionCode = "USR_USER_WRITE",
+                    FunctionCode = JPlayerRoles.UserWrite,
                     Name = "Ability to create or modify users"
                 },
                 new UsrFunctionDao
                 {
                     Id = 3,
-                    FunctionCode = "USR_PROFILE_READ",
+                    FunctionCode = JPlayerRoles.ProfileRead,
                     Name = "Ability to get profiles information"
                 },
                 new UsrFunctionDao
                 {
                     Id = 4,
-                    FunctionCode = "USR_PROFILE_WRITE",
+                    FunctionCode = JPlayerRoles.ProfileWrite,
                     Name = "Ability to create or modify profiles"
                 }
             };
@@ -58,7 +58,7 @@ namespace JPlayer.Data.Dao
                 {
                     Id = 1,
                     Login = "UserAdmin",
-                    Password = PasswordHelper.Crypt("UserAdmin","UserAdmin"),
+                    Password = PasswordHelper.Crypt("UserAdmin", "UserAdmin"),
                     Deactivated = false,
                     CreationDate = DateTime.Now,
                     ReadOnly = true
