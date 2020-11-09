@@ -142,7 +142,7 @@ namespace JPlayer.Api.AppStart
                         {
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthorized).AsApiError());
+                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthenticated).AsApiError());
                             context.Response.Body.FlushAsync().ConfigureAwait(false);
                             return Task.CompletedTask;
                         }

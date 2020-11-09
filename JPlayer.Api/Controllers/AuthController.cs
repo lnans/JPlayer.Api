@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using JPlayer.Business.Services;
 using JPlayer.Data.Dto.Credentials;
 using JPlayer.Lib.Contract;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JPlayer.Api.Controllers
@@ -26,10 +28,10 @@ namespace JPlayer.Api.Controllers
         /// <returns></returns>
         /// <response code="200">Authentication success</response>
         /// <response code="401">Authentication failed</response>
-        [HttpPost("")]
+        [HttpPost("SignIn")]
         [ProducesResponseType(typeof(ApiResult<CredentialsInfo>), 200)]
         [ProducesResponseType(typeof(ApiError), 401)]
-        public async Task<IActionResult> Login([FromBody] CredentialsForm credentialsForm)
+        public async Task<IActionResult> SignIn([FromBody] CredentialsForm credentialsForm)
         {
             try
             {
@@ -40,6 +42,20 @@ namespace JPlayer.Api.Controllers
             {
                 return this.Unauthorized(e.AsApiError());
             }
+        }
+
+        /// <summary>
+        ///     Sign Out a user
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [HttpDelete("SignOut")]
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiError), 401)]
+        public async Task<IActionResult> SignOut()
+        {
+            await this.HttpContext.SignOutAsync();
+            return this.Ok(true.AsApiResult());
         }
     }
 }
