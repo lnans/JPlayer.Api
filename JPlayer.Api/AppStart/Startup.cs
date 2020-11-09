@@ -52,12 +52,7 @@ namespace JPlayer.Api.AppStart
             int authExpirationTime = this._configuration.GetValue<int>("Authentication:ExpirationTime");
 
             // Database
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseSqlite(connString);
-                options.EnableSensitiveDataLogging();
-                options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-            });
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
 
             // Dependency Injection
             services.AddTransient<AuthService>();
