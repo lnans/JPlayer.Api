@@ -62,6 +62,8 @@ namespace JPlayer.Business.Services
             };
 
             // Sign in
+            user.LastConnectionDate = DateTime.Now;
+            await this._dbContext.SaveChangesAsync();
             await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
 
             return new CredentialsInfo
