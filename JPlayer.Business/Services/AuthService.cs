@@ -19,8 +19,8 @@ namespace JPlayer.Business.Services
 {
     public class AuthService
     {
-        private readonly ILogger<AuthService> _logger;
         private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(ILogger<AuthService> logger, ApplicationDbContext dbContext)
         {
@@ -40,10 +40,16 @@ namespace JPlayer.Business.Services
                 .FirstOrDefaultAsync(u => u.Login == credentialsForm.Login);
 
             if (user == null)
+            {
+                this._logger.LogInformation("User not found");
                 throw new AuthenticationException(GlobalLabelCodes.AuthAuthenticationFailed);
+            }
 
             if (!PasswordHelper.Check(user.Login, credentialsForm.Password, user.Password))
+            {
+                this._logger.LogInformation("Wrong password");
                 throw new AuthenticationException(GlobalLabelCodes.AuthAuthenticationFailed);
+            }
 
             // Get user roles
             IEnumerable<string> roles = user.UserProfiles
@@ -87,10 +93,16 @@ namespace JPlayer.Business.Services
         {
             UsrUserDao user = await this._dbContext.Users.FindAsync(userId);
             if (user == null)
+            {
+                this._logger.LogInformation("User not found");
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+            }
 
             if (!PasswordHelper.Check(user.Login, credentialsUpdateForm.CurrentPassword, user.Password))
+            {
+                this._logger.LogInformation("Wrong password");
                 throw new AuthenticationException(GlobalLabelCodes.AuthWrongPassword);
+            }
 
             user.Password = PasswordHelper.Crypt(user.Login, credentialsUpdateForm.NewPassword);
             await this._dbContext.SaveChangesAsync();
