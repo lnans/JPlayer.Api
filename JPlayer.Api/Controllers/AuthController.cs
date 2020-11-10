@@ -9,6 +9,7 @@ using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Api.Controllers
 {
@@ -17,10 +18,12 @@ namespace JPlayer.Api.Controllers
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
+        private readonly ILogger<AuthController> _logger;
         private readonly AuthService _authService;
 
-        public AuthController(AuthService authService)
+        public AuthController(ILogger<AuthController> logger, AuthService authService)
         {
+            this._logger = logger;
             this._authService = authService;
         }
 
@@ -38,6 +41,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation("Logging auth");
                 CredentialsInfo result = await this._authService.SignInAsync(this.HttpContext, credentialsForm);
                 return this.Ok(result.AsApiResult("credentialsInfo"));
             }

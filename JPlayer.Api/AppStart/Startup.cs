@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using NLog.Extensions.Logging;
 
 namespace JPlayer.Api.AppStart
 {
@@ -52,7 +53,11 @@ namespace JPlayer.Api.AppStart
             int authExpirationTime = this._configuration.GetValue<int>("Authentication:ExpirationTime");
 
             // Database
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlite(connString);
+                options.UseLoggerFactory(new NLogLoggerFactory());
+            });
 
             // Dependency Injection
             services.AddTransient<AuthService>();
@@ -85,6 +90,7 @@ namespace JPlayer.Api.AppStart
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseExceptionHandler(new ExceptionHandlerOptions {ExceptionHandler = new ExceptionMiddleware().Invoke});
+            app.UseMiddleware<LogMiddleware>();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
             // Swagger
