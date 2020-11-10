@@ -10,7 +10,7 @@ namespace JPlayer.Lib.Contract
 
         public string StackTrace { get; set; }
 
-        public string InnerException { get; set; }
+        public string CorrelationId { get; set; }
     }
 
     public static class ApiErrorExtension
@@ -19,7 +19,6 @@ namespace JPlayer.Lib.Contract
         {
             Error = exception.Message,
             StackTrace = useStackTrace ? exception.StackTrace : string.Empty,
-            InnerException = innerException?.Message,
             Details = new[] {innerException?.Message}
         };
     }

@@ -13,21 +13,25 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Business.Services
 {
     public class AuthService
     {
+        private readonly ILogger<AuthService> _logger;
         private readonly ApplicationDbContext _dbContext;
 
-        public AuthService(ApplicationDbContext dbContext)
+        public AuthService(ILogger<AuthService> logger, ApplicationDbContext dbContext)
         {
+            this._logger = logger;
             this._dbContext = dbContext;
         }
 
         public async Task<CredentialsInfo> SignInAsync(HttpContext httpContext, CredentialsForm credentialsForm)
         {
             // Check user in database
+            this._logger.LogInformation("Get user informations");
             UsrUserDao user = await this._dbContext.Users
                 .Include(u => u.UserProfiles)
                 .ThenInclude(up => up.Profile)

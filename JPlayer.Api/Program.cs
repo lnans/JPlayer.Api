@@ -26,6 +26,7 @@ namespace JPlayer.Api
             }
             finally
             {
+                LogManager.Flush();
                 LogManager.Shutdown();
             }
         }
