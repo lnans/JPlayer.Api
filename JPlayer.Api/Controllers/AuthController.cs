@@ -18,8 +18,8 @@ namespace JPlayer.Api.Controllers
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
-        private readonly ILogger<AuthController> _logger;
         private readonly AuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(ILogger<AuthController> logger, AuthService authService)
         {
@@ -41,12 +41,13 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
-                this._logger.LogInformation("Logging auth");
+                this._logger.LogInformation($"Login attempt as {credentialsForm.Login}");
                 CredentialsInfo result = await this._authService.SignInAsync(this.HttpContext, credentialsForm);
                 return this.Ok(result.AsApiResult("credentialsInfo"));
             }
             catch (AuthenticationException e)
             {
+                this._logger.LogInformation("Login failed");
                 return this.Unauthorized(e.AsApiError());
             }
         }
@@ -63,6 +64,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiError), 401)]
         public async Task<IActionResult> SignOut()
         {
+            this._logger.LogInformation("Logout");
             await this.HttpContext.SignOutAsync();
             return this.Ok(true.AsApiResult());
         }
@@ -84,6 +86,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiError), 500)]
         public async Task<IActionResult> UpdateCredentials([FromBody] CredentialsUpdateForm credentialsUpdateForm)
         {
+            this._logger.LogInformation("Checking current logged user");
             string userId = this.HttpContext.User.Claims
                 .Where(cl => cl.Type == ClaimTypes.NameIdentifier)
                 .Select(cl => cl.Value).FirstOrDefault();
@@ -93,6 +96,7 @@ namespace JPlayer.Api.Controllers
 
             try
             {
+                this._logger.LogInformation("Update credentials attempt");
                 await this._authService.UpdateCredentials(int.Parse(userId), credentialsUpdateForm);
                 return this.Ok(true.AsApiResult());
             }

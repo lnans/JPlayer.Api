@@ -6,6 +6,7 @@ using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Api.Controllers
 {
@@ -14,10 +15,12 @@ namespace JPlayer.Api.Controllers
     [Produces("application/json")]
     public class ProfileController : ControllerBase
     {
+        private readonly ILogger<ProfileController> _logger;
         private readonly ProfileService _profileService;
 
-        public ProfileController(ProfileService profileService)
+        public ProfileController(ILogger<ProfileController> logger, ProfileService profileService)
         {
+            this._logger = logger;
             this._profileService = profileService;
         }
 
@@ -32,6 +35,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<Page<ProfileCollectionItem>>), 200)]
         public async Task<IActionResult> GetMany([FromQuery] ProfileCriteria criteria)
         {
+            this._logger.LogInformation("Retrieve profile list");
             Page<ProfileCollectionItem> result = new Page<ProfileCollectionItem>
             {
                 TotalCount = await this._profileService.GetCount(criteria),
@@ -58,6 +62,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Retrieve profile with id {id}");
                 ProfileEntity result = await this._profileService.GetOne(id);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -84,6 +89,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation("Create profile attempt");
                 ProfileEntity result = await this._profileService.CreateOne(createForm);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -115,6 +121,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Update profile attempt with id {id}");
                 ProfileEntity result = await this._profileService.UpdateOne(id, updateForm);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -145,6 +152,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Delete profile attempt with id {id}");
                 await this._profileService.DeleteOne(id);
                 return this.Ok(true.AsApiResult());
             }

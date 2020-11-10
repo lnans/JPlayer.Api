@@ -6,6 +6,7 @@ using JPlayer.Lib.Contract;
 using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Api.Controllers
 {
@@ -17,10 +18,12 @@ namespace JPlayer.Api.Controllers
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
+        private readonly ILogger<UserController> _logger;
         private readonly UserService _userService;
 
-        public UserController(UserService userService)
+        public UserController(ILogger<UserController> logger, UserService userService)
         {
+            this._logger = logger;
             this._userService = userService;
         }
 
@@ -35,6 +38,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<Page<UserCollectionItem>>), 200)]
         public async Task<IActionResult> GetMany([FromQuery] UserCriteria criteria)
         {
+            this._logger.LogInformation("Retrieve user list");
             Page<UserCollectionItem> result = new Page<UserCollectionItem>
             {
                 TotalCount = await this._userService.GetUsersCount(criteria),
@@ -60,6 +64,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Retrieve user with {id}");
                 UserEntity result = await this._userService.GetUser(id);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -85,6 +90,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation("Create user attempt");
                 UserEntity result = await this._userService.CreateUser(userCreateForm);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -116,6 +122,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Update user with id {id}");
                 UserEntity result = await this._userService.UpdateUser(id, userUpdateForm);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -146,6 +153,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
+                this._logger.LogInformation($"Delete user attempt with id {id}");
                 await this._userService.DeleteUser(id);
                 return this.Ok(true.AsApiResult());
             }
