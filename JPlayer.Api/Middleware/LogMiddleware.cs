@@ -20,6 +20,7 @@ namespace JPlayer.Api.Middleware
         public async Task Invoke(HttpContext context)
         {
             context.Items["CorrelationId"] = context.TraceIdentifier;
+            context.Items["NameIdentifier"] = context.User.Identity.Name ?? "Anonymous";
             Stopwatch sw = Stopwatch.StartNew();
 
             string protocol = context.Request.IsHttps ? "https" : "http";

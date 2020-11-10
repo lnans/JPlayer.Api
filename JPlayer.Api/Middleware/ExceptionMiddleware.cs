@@ -22,7 +22,7 @@ namespace JPlayer.Api.Middleware
             {
                 Error = ex.Message,
                 StackTrace = ex.StackTrace,
-                InnerException = ex.InnerException?.Message
+                CorrelationId = httpContext.TraceIdentifier
             };
 
             httpContext.Response.ContentType = "application/json";
