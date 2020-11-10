@@ -1,8 +1,12 @@
-﻿namespace JPlayer.Lib.Contract
+﻿using System.Collections.Generic;
+
+namespace JPlayer.Lib.Contract
 {
     public class ApiError
     {
         public string Error { get; set; }
+
+        public IEnumerable<string> Details { get; set; }
 
         public string StackTrace { get; set; }
 
@@ -15,7 +19,8 @@
         {
             Error = exception.Message,
             StackTrace = useStackTrace ? exception.StackTrace : string.Empty,
-            InnerException = innerException?.Message
+            InnerException = innerException?.Message,
+            Details = new[] {innerException?.Message}
         };
     }
 }

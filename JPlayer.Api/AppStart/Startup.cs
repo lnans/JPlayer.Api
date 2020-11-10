@@ -14,6 +14,7 @@ using JPlayer.Lib.Mapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,10 +60,11 @@ namespace JPlayer.Api.AppStart
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
             services.AddTransient<ObjectMapper>();
-
+            
             // Routing
             services.AddCustomAuthentication(authCookieName, authExpirationTime);
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+            services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = ctx => new ValidationMiddleware());
 
             // Swagger
             services.AddCustomSwaggerGen(this._assemblyName, this._assemblyVersion, this._appName);
