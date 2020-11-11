@@ -7,7 +7,7 @@ namespace JPlayer.Data.Dto.Function
     /// </summary>
     public class FunctionCriteria : ApiCriteria
     {
-        public FunctionCriteria() : base(int.MaxValue, -1, SortDir.Asc, nameof(FunctionCode))
+        public FunctionCriteria() : base(int.MaxValue - 1, 0, SortDir.Asc, nameof(FunctionCode))
         {
         }
 

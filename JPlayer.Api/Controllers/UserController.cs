@@ -90,7 +90,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
-                this._logger.LogInformation("Create user attempt");
+                this._logger.LogInformation($"Create user attempt with login {userCreateForm.Login}");
                 UserEntity result = await this._userService.CreateUser(userCreateForm);
                 return this.Ok(result.AsApiResult("userEntity"));
             }

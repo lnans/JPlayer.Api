@@ -9,18 +9,25 @@ using JPlayer.Data.Dto.User;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Crypto;
 using JPlayer.Lib.Exception;
-using JPlayer.Lib.Mapper;
+using JPlayer.Lib.Object;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Business.Services
 {
+    /// <summary>
+    ///     Service for GET, CREATE, UPDATE and DELETE users
+    ///     Profiles can be assigned to users
+    /// </summary>
     public class UserService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<UserService> _logger;
         private readonly ObjectMapper _mapper;
 
-        public UserService(ApplicationDbContext dbContext, ObjectMapper mapper)
+        public UserService(ILogger<UserService> logger, ApplicationDbContext dbContext, ObjectMapper mapper)
         {
+            this._logger = logger;
             this._dbContext = dbContext;
             this._mapper = mapper;
         }
@@ -29,10 +36,11 @@ namespace JPlayer.Business.Services
         ///     Return user in database
         /// </summary>
         /// <param name="userCriteria">Search filter</param>
-        /// <returns></returns>
+        /// <returns>Paginated user list</returns>
         public async Task<IEnumerable<UserCollectionItem>> GetUsers(UserCriteria userCriteria)
         {
             userCriteria ??= new UserCriteria();
+            this._logger.LogInformation($"Get user list with search criteria: {userCriteria.ToJson()}");
             List<UsrUserDao> result = await this.UserFilterd(userCriteria)
                 .Skip(userCriteria.Skip)
                 .Take(userCriteria.Limit)
@@ -45,7 +53,7 @@ namespace JPlayer.Business.Services
         ///     Return number of user in database
         /// </summary>
         /// <param name="userCriteria">Search filter</param>
-        /// <returns></returns>
+        /// <returns>User count</returns>
         public async Task<int> GetUsersCount(UserCriteria userCriteria)
         {
             userCriteria ??= new UserCriteria();
@@ -56,8 +64,9 @@ namespace JPlayer.Business.Services
         /// <summary>
         ///     Return a specific user
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">User id</param>
+        /// <exception cref="ApiNotFoundException"></exception>
+        /// <returns>User</returns>
         public async Task<UserEntity> GetUser(int id)
         {
             UsrUserDao user = await this._dbContext.Users
@@ -66,7 +75,10 @@ namespace JPlayer.Business.Services
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
+            {
+                this._logger.LogInformation("User not found");
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+            }
 
             UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(user);
             result.Profiles = user.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
@@ -76,12 +88,17 @@ namespace JPlayer.Business.Services
         /// <summary>
         ///     Create a new user
         /// </summary>
-        /// <param name="userCreateForm"></param>
-        /// <returns></returns>
+        /// <param name="userCreateForm">New user informations</param>
+        /// <exception cref="ApiAlreadyExistException"></exception>
+        /// <exception cref="ApiNotFoundException"></exception>
+        /// <returns>New created user</returns>
         public async Task<UserEntity> CreateUser(UserCreateForm userCreateForm)
         {
             if (await this._dbContext.Users.AnyAsync(u => u.Login == userCreateForm.Login))
+            {
+                this._logger.LogInformation("User already exist");
                 throw new ApiAlreadyExistException(GlobalLabelCodes.UserAlreadyExist);
+            }
 
             UsrUserDao newUsrUser = new UsrUserDao
             {
@@ -95,7 +112,10 @@ namespace JPlayer.Business.Services
             {
                 UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(profileId);
                 if (profile == null)
+                {
+                    this._logger.LogInformation($"Try to assiocate unkown profile with id {profileId}");
                     throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+                }
 
                 userProfiles.Add(new UsrUserProfileDao {User = newUsrUser, Profile = profile});
             }
@@ -112,17 +132,25 @@ namespace JPlayer.Business.Services
         /// <summary>
         ///     Update an user
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="userCreateForm"></param>
-        /// <returns></returns>
+        /// <param name="id">User id</param>
+        /// <param name="userCreateForm">Updated user informations</param>
+        /// <exception cref="ApiNotFoundException"></exception>
+        /// <exception cref="ApiException"></exception>
+        /// <returns>Updated user</returns>
         public async Task<UserEntity> UpdateUser(int id, UserUpdateForm userCreateForm)
         {
             UsrUserDao usrUser = await this._dbContext.Users.FindAsync(id);
             if (usrUser == null)
+            {
+                this._logger.LogInformation("User not found");
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+            }
 
             if (usrUser.ReadOnly)
+            {
+                this._logger.LogInformation("User is in read-only mode");
                 throw new ApiException(GlobalLabelCodes.UserReadOnly);
+            }
 
             // Get current profiles of the user
             IQueryable<UsrUserProfileDao> userProfiles = this._dbContext.UserProfiles.Where(pf => pf.UserId == id);
@@ -130,7 +158,10 @@ namespace JPlayer.Business.Services
             {
                 UsrProfileDao profile = await this._dbContext.Profiles.FirstOrDefaultAsync(f => f.Id == profileId);
                 if (profile == null)
+                {
+                    this._logger.LogInformation($"Try to associate unknown profile with id {profileId}");
                     throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
+                }
 
                 // Add profiles to the user if not exist
                 if (!userProfiles.Any(up => up.ProfileId == profileId))
@@ -154,21 +185,34 @@ namespace JPlayer.Business.Services
         /// <summary>
         ///     Delete an user
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">User id</param>
+        /// <exception cref="ApiNotFoundException"></exception>
+        /// <exception cref="ApiException"></exception>
         /// <returns></returns>
         public async Task DeleteUser(int id)
         {
             UsrUserDao usrUser = await this._dbContext.Users.FindAsync(id);
             if (usrUser == null)
+            {
+                this._logger.LogInformation("User not found");
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
+            }
 
             if (usrUser.ReadOnly)
+            {
+                this._logger.LogInformation("User is in read-only mode");
                 throw new ApiException(GlobalLabelCodes.UserReadOnly);
+            }
 
             this._dbContext.Remove(usrUser);
             await this._dbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        ///     Apply search filter to the Users DbSet
+        /// </summary>
+        /// <param name="userCriteria">Search filter</param>
+        /// <returns>Filtered DbSet</returns>
         private IQueryable<UsrUserDao> UserFilterd(UserCriteria userCriteria)
         {
             IQueryable<UsrUserDao> filtered = this._dbContext.Users.AsQueryable();

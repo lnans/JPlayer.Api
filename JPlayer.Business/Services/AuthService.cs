@@ -17,6 +17,10 @@ using Microsoft.Extensions.Logging;
 
 namespace JPlayer.Business.Services
 {
+    /// <summary>
+    ///     Service use to authenticate users
+    ///     Can be use to change credentials
+    /// </summary>
     public class AuthService
     {
         private readonly ApplicationDbContext _dbContext;
@@ -28,6 +32,13 @@ namespace JPlayer.Business.Services
             this._dbContext = dbContext;
         }
 
+        /// <summary>
+        ///     Sign In a known user into the system
+        /// </summary>
+        /// <param name="httpContext">Current controller context</param>
+        /// <param name="credentialsForm">Credetnials of the user</param>
+        /// <exception cref="AuthenticationException"></exception>
+        /// <returns>User informations</returns>
         public async Task<CredentialsInfo> SignInAsync(HttpContext httpContext, CredentialsForm credentialsForm)
         {
             // Check user in database
@@ -86,8 +97,10 @@ namespace JPlayer.Business.Services
         /// <summary>
         ///     Update credentials for the current logged user
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="credentialsUpdateForm"></param>
+        /// <param name="userId">NameIdentifier of the user</param>
+        /// <param name="credentialsUpdateForm">User credentials</param>
+        /// <exception cref="ApiNotFoundException"></exception>
+        /// <exception cref="AuthenticationException"></exception>
         /// <returns></returns>
         public async Task UpdateCredentials(int userId, CredentialsUpdateForm credentialsUpdateForm)
         {

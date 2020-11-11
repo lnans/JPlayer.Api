@@ -10,7 +10,7 @@ using JPlayer.Business;
 using JPlayer.Business.Services;
 using JPlayer.Data.Dao;
 using JPlayer.Lib.Contract;
-using JPlayer.Lib.Mapper;
+using JPlayer.Lib.Object;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

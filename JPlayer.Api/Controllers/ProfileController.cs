@@ -89,7 +89,7 @@ namespace JPlayer.Api.Controllers
         {
             try
             {
-                this._logger.LogInformation("Create profile attempt");
+                this._logger.LogInformation($"Create profile attempt with name {createForm.Name}");
                 ProfileEntity result = await this._profileService.CreateOne(createForm);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }

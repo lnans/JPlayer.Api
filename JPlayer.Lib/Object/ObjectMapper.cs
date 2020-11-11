@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+
 // ReSharper disable PossibleNullReferenceException
 
-namespace JPlayer.Lib.Mapper
+namespace JPlayer.Lib.Object
 {
     public class ObjectMapper
     {
