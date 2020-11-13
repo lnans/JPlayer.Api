@@ -83,7 +83,14 @@ namespace JPlayer.Api.AppStart
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(builder => builder
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+                );
+            }
 
             // Middleswares
             app.UseRouting();
@@ -99,6 +106,7 @@ namespace JPlayer.Api.AppStart
 
             // Database
             app.EnsureDbCreated();
+
         }
     }
 
