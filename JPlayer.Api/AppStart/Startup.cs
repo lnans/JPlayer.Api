@@ -14,6 +14,7 @@ using JPlayer.Lib.Object;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +51,7 @@ namespace JPlayer.Api.AppStart
             // Application parameters
             string connString = this._configuration.GetConnectionString("sqlite");
             string authCookieName = this._configuration.GetValue<string>("Authentication:CookieName");
+            string allowOrigin = this._configuration.GetValue<string>("Authentication:AllowOrigin");
             int authExpirationTime = this._configuration.GetValue<int>("Authentication:ExpirationTime");
 
             // Database
@@ -65,11 +67,14 @@ namespace JPlayer.Api.AppStart
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
             services.AddTransient<ObjectMapper>();
-            
+
             // Routing
             services.AddCustomAuthentication(authCookieName, authExpirationTime);
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = ctx => new ValidationMiddleware());
+
+            // Cors
+            services.AddCors(options => options.AddPolicy("CustomCors", builder => builder.WithOrigins(allowOrigin).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
             // Swagger
             services.AddCustomSwaggerGen(this._assemblyName, this._assemblyVersion, this._appName);
@@ -83,14 +88,10 @@ namespace JPlayer.Api.AppStart
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(builder => builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowAnyOrigin()
-                );
-            }
+
+            // Cors
+            app.UseCors("CustomCors");
 
             // Middleswares
             app.UseRouting();
@@ -100,13 +101,16 @@ namespace JPlayer.Api.AppStart
             app.UseMiddleware<LogMiddleware>();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
+            // HTTPS
+            app.UseHsts();
+            app.UseHttpsRedirection();
+
             // Swagger
             app.UseSwagger();
             app.UseSwaggerUI(options => options.SwaggerEndpoint($"/swagger/{this._assemblyName}/swagger.json", this._assemblyName));
 
             // Database
             app.EnsureDbCreated();
-
         }
     }
 
@@ -137,6 +141,8 @@ namespace JPlayer.Api.AppStart
                 .AddCookie(options =>
                 {
                     options.Cookie.Name = cookieName;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.None;
                     options.ExpireTimeSpan = TimeSpan.FromHours(expirationTime);
                     options.Events = new CookieAuthenticationEvents
                     {

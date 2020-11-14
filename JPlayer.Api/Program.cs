@@ -35,7 +35,6 @@ namespace JPlayer.Api
         {
             return logging =>
             {
-                logging.ClearProviders();
                 logging.SetMinimumLevel(LogLevel.Trace);
             };
         }
