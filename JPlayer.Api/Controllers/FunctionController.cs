@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace JPlayer.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("functions")]
     [Produces("application/json")]
     public class FunctionController : ControllerBase
     {

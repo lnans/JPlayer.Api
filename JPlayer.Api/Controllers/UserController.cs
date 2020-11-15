@@ -14,7 +14,7 @@ namespace JPlayer.Api.Controllers
     ///     User management controller
     /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("users")]
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
