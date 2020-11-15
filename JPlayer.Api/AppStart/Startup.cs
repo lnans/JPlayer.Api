@@ -21,7 +21,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using NLog.Extensions.Logging;
+using NLog.Targets;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace JPlayer.Api.AppStart
 {
@@ -144,13 +147,19 @@ namespace JPlayer.Api.AppStart
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.SameSite = SameSiteMode.None;
                     options.ExpireTimeSpan = TimeSpan.FromHours(expirationTime);
+
+                    JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
+
                     options.Events = new CookieAuthenticationEvents
                     {
                         OnRedirectToAccessDenied = context =>
                         {
                             context.Response.StatusCode = 403;
                             context.Response.ContentType = "application/json";
-                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthorized).AsApiError());
+                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthorized).AsApiError(), JsonOptions);
                             context.Response.Body.FlushAsync().ConfigureAwait(false);
                             return Task.CompletedTask;
                         },
@@ -158,7 +167,7 @@ namespace JPlayer.Api.AppStart
                         {
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthenticated).AsApiError());
+                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthenticated).AsApiError(), JsonOptions);
                             context.Response.Body.FlushAsync().ConfigureAwait(false);
                             return Task.CompletedTask;
                         }

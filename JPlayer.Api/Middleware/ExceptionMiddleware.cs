@@ -26,7 +26,13 @@ namespace JPlayer.Api.Middleware
             };
 
             httpContext.Response.ContentType = "application/json";
-            await JsonSerializer.SerializeAsync(httpContext.Response.Body, error);
+
+            JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            await JsonSerializer.SerializeAsync(httpContext.Response.Body, error, JsonOptions);
             await httpContext.Response.Body.FlushAsync().ConfigureAwait(false);
         }
     }

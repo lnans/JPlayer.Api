@@ -5,7 +5,7 @@
         public const string RequestValidationError = "requestValidationError";
         
         public const string AuthAuthenticationFailed = "authAuthenticationFailed";
-        public const string AuthWrongPassword = "AuthWrongPassword";
+        public const string AuthWrongPassword = "authWrongPassword";
         public const string AuthNotAuthenticated = "authNotAuthenticated";
         public const string AuthNotAuthorized = "authNotAuthorized";
 

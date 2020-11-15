@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -50,6 +51,36 @@ namespace JPlayer.Api.Controllers
                 this._logger.LogInformation("Login failed");
                 return this.Unauthorized(e.AsApiError());
             }
+        }
+
+        /// <summary>
+        ///     Get current logged user information
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="200">User information</response>
+        /// <response code="401">Authentication failed</response>
+        [Authorize]
+        [HttpGet("")]
+        [ProducesResponseType(typeof(ApiResult<CredentialsInfo>), 200)]
+        [ProducesResponseType(typeof(ApiError), 401)]
+        public IActionResult GetIdentity()
+        {
+            this._logger.LogInformation("Getting current logged user");
+            string login = this.HttpContext.User.Claims
+                .Where(cl => cl.Type == ClaimTypes.Name)
+                .Select(cl => cl.Value).FirstOrDefault();
+
+            IEnumerable<string> functions = this.HttpContext.User.Claims
+                .Where(cl => cl.Type == ClaimTypes.Role)
+                .Select(cl => cl.Value);
+
+            CredentialsInfo result = new CredentialsInfo
+            {
+                Login = login,
+                Functions = functions
+            };
+
+            return this.Ok(result.AsApiResult("credentialsInfo"));
         }
 
         /// <summary>
