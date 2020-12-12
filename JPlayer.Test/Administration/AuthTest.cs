@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using NUnit.Framework;
 
-namespace JPlayer.Test.Auth
+namespace JPlayer.Test.Administration
 {
     [TestFixture]
     public class AuthTest : AbstractBaseTest
@@ -30,7 +30,7 @@ namespace JPlayer.Test.Auth
         }
 
         [TearDown]
-        public void CleanUp()
+        public void TearDown()
         {
             this.CleanDbContext();
         }
