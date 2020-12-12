@@ -21,9 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using NLog.Extensions.Logging;
-using NLog.Targets;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace JPlayer.Api.AppStart
@@ -121,9 +119,9 @@ namespace JPlayer.Api.AppStart
     {
         public static void EnsureDbCreated(this IApplicationBuilder app)
         {
-            using IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
-            ApplicationDbContext context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            context.Database.EnsureCreated();
+            using IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
+            ApplicationDbContext context = serviceScope?.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context?.Database.EnsureCreated();
         }
 
         public static void AddCustomSwaggerGen(this IServiceCollection services, string assemblyName, string appVersion, string appName)

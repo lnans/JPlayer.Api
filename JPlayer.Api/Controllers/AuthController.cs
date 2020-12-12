@@ -93,7 +93,7 @@ namespace JPlayer.Api.Controllers
         [HttpDelete("SignOut")]
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 401)]
-        public async Task<IActionResult> SignOut()
+        public new async Task<IActionResult> SignOut()
         {
             this._logger.LogInformation("Logout");
             await this.HttpContext.SignOutAsync();
