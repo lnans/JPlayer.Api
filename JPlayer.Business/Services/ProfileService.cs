@@ -96,7 +96,7 @@ namespace JPlayer.Business.Services
             if (await this._dbContext.Profiles.AnyAsync(p => p.Name.ToLower() == createForm.Name.ToLower()))
             {
                 this._logger.LogInformation("Profile already exist");
-                throw new ApiNotFoundException(GlobalLabelCodes.ProfileAlreadyExist);
+                throw new ApiAlreadyExistException(GlobalLabelCodes.ProfileAlreadyExist);
             }
 
             UsrProfileDao profile = new UsrProfileDao

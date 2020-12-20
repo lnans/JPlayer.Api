@@ -168,7 +168,7 @@ namespace JPlayer.Business.Services
                     await this._dbContext.UserProfiles.AddAsync(new UsrUserProfileDao {UserId = id, ProfileId = profileId});
             }
 
-            // Remove a function from the profile if not given
+            // Remove a profile from the user if not given
             foreach (UsrUserProfileDao userProfile in userProfiles)
             {
                 if (userCreateForm.Profiles.All(p => p != userProfile.ProfileId))
