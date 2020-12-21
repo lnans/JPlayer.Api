@@ -56,7 +56,7 @@ namespace JPlayer.Test.Administration
         }
 
         [Test]
-        public async Task SignIn_WithBadCred_ShouldReturn_ApiError_WithStatus401()
+        public async Task SignIn_WithWrongPassword_ShouldReturn_ApiError_WithStatus401()
         {
             CredentialsForm credentialsForm = new CredentialsForm {Login = "UserAdmin", Password = "WrongPassword"};
             IActionResult actionResult = await this._authController.SignIn(credentialsForm);
@@ -64,6 +64,21 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
+
+            ApiError apiError = result.Value as ApiError;
+            Assert.IsNotNull(apiError);
+            Assert.AreEqual(GlobalLabelCodes.AuthAuthenticationFailed, apiError.Error);
+        }
+
+        [Test]
+        public async Task SignIn_WithWrongLogin_ShouldReturn_ApiError_WithStatus401()
+        {
+            CredentialsForm credentialsForm = new CredentialsForm { Login = "WrongLogin", Password = "UserAdmin" };
+            IActionResult actionResult = await this._authController.SignIn(credentialsForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.Unauthorized, result.StatusCode);
 
             ApiError apiError = result.Value as ApiError;
             Assert.IsNotNull(apiError);
@@ -134,6 +149,23 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
+        }
+
+        [Test]
+        public async Task UpdateCredentials_WithWrongIdentifier_ShouldReturn_Status401()
+        {
+            // Create fake authentication
+            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            identity.AddClaim(new Claim(ClaimTypes.Name, "Fake"));
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "2"));
+            this._authController.HttpContext.User = new ClaimsPrincipal(identity);
+
+            CredentialsUpdateForm credentialsUpdateForm = new CredentialsUpdateForm { CurrentPassword = "Password", NewPassword = "Password" };
+            IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
         }
     }
 }

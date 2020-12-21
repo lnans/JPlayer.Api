@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JPlayer.Api.Controllers;
 using JPlayer.Business;
 using JPlayer.Business.Services;
+using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.Profile;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Object;
@@ -144,16 +145,103 @@ namespace JPlayer.Test.Administration
             Assert.AreEqual(GlobalLabelCodes.ProfileReadOnly, error.Error);
         }
 
+        [Test]
         public async Task UpdateOne_KnownProfile_ShouldReturn_ApiError_WithStatus200()
+        {
+            // Prepare
+            UsrProfileDao profileDao = new UsrProfileDao
+            {
+                Name = "FakeProfile"
+            };
+            await this._dbContext.Profiles.AddAsync(profileDao);
+            await this._dbContext.SaveChangesAsync();
+
+            // Act
+            ProfileUpdateForm profileUpdateForm = new ProfileUpdateForm
+            {
+                FunctionIds = new[] {1}
+            };
+            IActionResult actionResult = await this._profileController.UpdateOne(profileDao.Id, profileUpdateForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
+
+            ApiResult<ProfileEntity> profile = result.Value as ApiResult<ProfileEntity>;
+
+            Assert.IsNotNull(profile);
+            Assert.AreEqual(profileDao.Name, profile.Data.Name);
+            Assert.AreEqual(1, profile.Data.Functions.Count());
+        }
+
+        [Test]
+        public async Task UpdateOne_UnknownProfile_ShouldReturn_ApiError_WithStatus404()
         {
             ProfileUpdateForm profileUpdateForm = new ProfileUpdateForm
             {
                 FunctionIds = new[] {1}
             };
-            IActionResult actionResult = await this._profileController.UpdateOne(1, profileUpdateForm);
+            IActionResult actionResult = await this._profileController.UpdateOne(99, profileUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
             Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.ProfileNotFound, error.Error);
+        }
+
+        [Test]
+        public async Task DeleteOne_KnownProfile_ShouldReturn_Status200()
+        {
+            // Prepare
+            UsrProfileDao profileDao = new UsrProfileDao
+            {
+                Name = "FakeProfile"
+            };
+            await this._dbContext.Profiles.AddAsync(profileDao);
+            await this._dbContext.SaveChangesAsync();
+
+            // Act
+            IActionResult actionResult = await this._profileController.DeleteOne(profileDao.Id);
+            ObjectResult result = actionResult as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [Test]
+        public async Task DeleteOne_ReadOnlyProfile_ShouldReturn_ApiError_WithStatus409()
+        {
+            IActionResult actionResult = await this._profileController.DeleteOne(1);
+            ObjectResult result = actionResult as ObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.Conflict, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.ProfileReadOnly, error.Error);
+        }
+
+        [Test]
+        public async Task DeleteOne_UnknownProfile_ShouldReturn_ApiError_WithStatus404()
+        {
+            IActionResult actionResult = await this._profileController.DeleteOne(99);
+            ObjectResult result = actionResult as ObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.ProfileNotFound, error.Error);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using JPlayer.Api.Controllers;
+using JPlayer.Business;
 using JPlayer.Business.Services;
 using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.User;
@@ -80,6 +81,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserNotFound, error.Error);
         }
 
         [Test]
@@ -106,7 +112,7 @@ namespace JPlayer.Test.Administration
         }
 
         [Test]
-        public async Task PostOne_KnownUser_ShouldReturn_Status400()
+        public async Task PostOne_KnownUser_ShouldReturn_ApiError_WithStatus400()
         {
             UserCreateForm userCreateForm = new UserCreateForm {Login = "UserAdmin", Password = "NewUser", Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Create(userCreateForm);
@@ -114,6 +120,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.BadRequest, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserAlreadyExist, error.Error);
         }
 
         [Test]
@@ -146,6 +157,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Conflict, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserReadOnly, error.Error);
         }
 
         [Test]
@@ -157,6 +173,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserNotFound, error.Error);
         }
 
         [Test]
@@ -182,6 +203,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Conflict, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserReadOnly, error.Error);
         }
 
         [Test]
@@ -192,6 +218,11 @@ namespace JPlayer.Test.Administration
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.UserNotFound, error.Error);
         }
     }
 }
