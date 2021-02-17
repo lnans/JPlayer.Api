@@ -67,6 +67,7 @@ namespace JPlayer.Api.AppStart
             services.AddTransient<UserService>();
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
+            services.AddTransient<DashboardService>();
             services.AddTransient<ObjectMapper>();
 
             // Routing
