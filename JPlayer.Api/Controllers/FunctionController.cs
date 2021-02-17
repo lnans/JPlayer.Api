@@ -6,6 +6,7 @@ using JPlayer.Lib.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JPlayer.Api.Controllers
 {
@@ -32,6 +33,7 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<FunctionCollectionItem>>), 200)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> GetMany([FromQuery] FunctionCriteria functionCriteria)
         {
             this._logger.LogInformation("Retrieve function list");

@@ -131,6 +131,7 @@ namespace JPlayer.Api.AppStart
             {
                 options.SwaggerDoc(assemblyName, new OpenApiInfo {Title = assemblyName, Version = appVersion});
                 options.DescribeAllParametersInCamelCase();
+                options.EnableAnnotations();
                 string[] docs = Directory.GetFiles(AppContext.BaseDirectory, $"{appName}.*.xml", SearchOption.TopDirectoryOnly);
                 foreach (string xmlPath in docs)
                     options.IncludeXmlComments(xmlPath);

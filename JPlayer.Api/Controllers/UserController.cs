@@ -7,6 +7,7 @@ using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JPlayer.Api.Controllers
 {
@@ -36,6 +37,7 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.UserRead)]
         [ProducesResponseType(typeof(ApiResult<Page<UserCollectionItem>>), 200)]
+        [SwaggerOperation(Tags = new []{ SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> GetMany([FromQuery] UserCriteria criteria)
         {
             this._logger.LogInformation("Retrieve user list");
@@ -60,6 +62,7 @@ namespace JPlayer.Api.Controllers
         [Authorize(Roles = JPlayerRoles.UserRead)]
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> GetOne(int id)
         {
             try
@@ -86,6 +89,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 400)]
         [ProducesResponseType(typeof(ApiError), 404)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> Create([FromBody] UserCreateForm userCreateForm)
         {
             try
@@ -118,6 +122,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> Update(int id, [FromBody] UserUpdateForm userUpdateForm)
         {
             try
@@ -149,6 +154,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> Delete(int id)
         {
             try

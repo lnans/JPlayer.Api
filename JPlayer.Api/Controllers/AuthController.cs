@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JPlayer.Api.Controllers
 {
@@ -38,6 +39,7 @@ namespace JPlayer.Api.Controllers
         [HttpPost("SignIn")]
         [ProducesResponseType(typeof(ApiResult<CredentialsInfo>), 200)]
         [ProducesResponseType(typeof(ApiError), 401)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AuthenticationSection })]
         public async Task<IActionResult> SignIn([FromBody] CredentialsForm credentialsForm)
         {
             try
@@ -63,6 +65,7 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [ProducesResponseType(typeof(ApiResult<CredentialsInfo>), 200)]
         [ProducesResponseType(typeof(ApiError), 401)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AuthenticationSection })]
         public IActionResult GetIdentity()
         {
             this._logger.LogInformation("Getting current logged user");
@@ -93,6 +96,7 @@ namespace JPlayer.Api.Controllers
         [HttpDelete("SignOut")]
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 401)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AuthenticationSection })]
         public new async Task<IActionResult> SignOut()
         {
             this._logger.LogInformation("Logout");
@@ -115,6 +119,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiError), 401)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 500)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AuthenticationSection })]
         public async Task<IActionResult> UpdateCredentials([FromBody] CredentialsUpdateForm credentialsUpdateForm)
         {
             this._logger.LogInformation("Checking current logged user");

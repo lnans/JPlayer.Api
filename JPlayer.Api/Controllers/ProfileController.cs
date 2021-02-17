@@ -7,6 +7,7 @@ using JPlayer.Lib.Exception;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JPlayer.Api.Controllers
 {
@@ -33,6 +34,7 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<ProfileCollectionItem>>), 200)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> GetMany([FromQuery] ProfileCriteria criteria)
         {
             this._logger.LogInformation("Retrieve profile list");
@@ -58,6 +60,7 @@ namespace JPlayer.Api.Controllers
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> GetOne(int id)
         {
             try
@@ -85,6 +88,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 400)]
         [ProducesResponseType(typeof(ApiError), 404)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> CreateOne([FromBody] ProfileCreateForm createForm)
         {
             try
@@ -117,6 +121,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> UpdateOne(int id, [FromBody] ProfileUpdateForm updateForm)
         {
             try
@@ -148,6 +153,7 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
+        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
         public async Task<IActionResult> DeleteOne(int id)
         {
             try
