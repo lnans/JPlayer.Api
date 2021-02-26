@@ -33,11 +33,11 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<FunctionCollectionItem>>), 200)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> GetMany([FromQuery] FunctionCriteria functionCriteria)
         {
             this._logger.LogInformation("Retrieve function list");
-            Page<FunctionCollectionItem> result = new Page<FunctionCollectionItem>
+            Page<FunctionCollectionItem> result = new()
             {
                 TotalCount = await this._functionService.GetCount(functionCriteria),
                 List = await this._functionService.GetMany(functionCriteria),

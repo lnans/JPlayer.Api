@@ -30,14 +30,15 @@ namespace JPlayer.Business.Services
 
         /// <summary>
         ///     Return functions in database
-        ///     can be filtred with a criteria object
+        ///     can be filtered with a criteria object
         /// </summary>
         /// <param name="criteria">Search filter</param>
         /// <returns>Function list</returns>
         public async Task<IEnumerable<FunctionCollectionItem>> GetMany(FunctionCriteria criteria)
         {
             criteria ??= new FunctionCriteria();
-            this._logger.LogInformation($"Get filtered function list with search criteria: {criteria.ToJson()}");
+            this._logger.LogInformation("Get filtered function list with search criteria: {Criteria}",
+                criteria.ToJson());
             List<UsrFunctionDao> result = await this.FunctionsFiltered(criteria)
                 .Skip(criteria.Skip)
                 .Take(criteria.Limit)
@@ -48,7 +49,7 @@ namespace JPlayer.Business.Services
 
         /// <summary>
         ///     Count functions in database
-        ///     Can be filered with a criteria object
+        ///     Can be filtered with a criteria object
         /// </summary>
         /// <param name="criteria">Search filter</param>
         /// <returns>Functions count</returns>
@@ -72,7 +73,9 @@ namespace JPlayer.Business.Services
 
             filtered = criteria.SortField.ToLower() switch
             {
-                "functioncode" => criteria.SortDir == SortDir.Asc ? filtered.OrderBy(o => o.FunctionCode) : filtered.OrderByDescending(o => o.FunctionCode),
+                "functioncode" => criteria.SortDir == SortDir.Asc
+                    ? filtered.OrderBy(o => o.FunctionCode)
+                    : filtered.OrderByDescending(o => o.FunctionCode),
                 _ => filtered
             };
             return filtered;

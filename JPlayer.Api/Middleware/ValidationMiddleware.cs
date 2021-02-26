@@ -13,14 +13,16 @@ namespace JPlayer.Api.Middleware
 {
     public class ValidationMiddleware : IActionResult
     {
-        private readonly ILogger<ValidationMiddleware> _logger = new Logger<ValidationMiddleware>(new NLogLoggerFactory());
+        private readonly ILogger<ValidationMiddleware> _logger =
+            new Logger<ValidationMiddleware>(new NLogLoggerFactory());
 
         public async Task ExecuteResultAsync(ActionContext context)
         {
-            KeyValuePair<string, ModelStateEntry>[] modelStateEntries = context.ModelState.Where(e => e.Value.Errors.Count > 0).ToArray();
+            KeyValuePair<string, ModelStateEntry>[] modelStateEntries =
+                context.ModelState.Where(e => e.Value.Errors.Count > 0).ToArray();
 
             IEnumerable<ModelError> errors = modelStateEntries.SelectMany(entries => entries.Value.Errors);
-            ApiError error = new ApiError
+            ApiError error = new()
             {
                 Error = GlobalLabelCodes.RequestValidationError,
                 Details = errors.Select(err => err.ErrorMessage)

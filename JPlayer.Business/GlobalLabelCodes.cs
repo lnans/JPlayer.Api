@@ -3,7 +3,7 @@
     public static class GlobalLabelCodes
     {
         public const string RequestValidationError = "request_validation_error";
-        
+
         public const string AuthAuthenticationFailed = "auth_authentication_failed";
         public const string AuthWrongPassword = "auth_wrong_password";
         public const string AuthNotAuthenticated = "auth_not_authenticated";

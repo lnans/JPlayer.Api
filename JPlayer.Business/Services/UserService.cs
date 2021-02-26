@@ -40,8 +40,8 @@ namespace JPlayer.Business.Services
         public async Task<IEnumerable<UserCollectionItem>> GetUsers(UserCriteria userCriteria)
         {
             userCriteria ??= new UserCriteria();
-            this._logger.LogInformation($"Get user list with search criteria: {userCriteria.ToJson()}");
-            List<UsrUserDao> result = await this.UserFilterd(userCriteria)
+            this._logger.LogInformation("Get user list with search criteria: {Criteria}", userCriteria.ToJson());
+            List<UsrUserDao> result = await this.UserFiltered(userCriteria)
                 .Skip(userCriteria.Skip)
                 .Take(userCriteria.Limit)
                 .ToListAsync();
@@ -57,7 +57,7 @@ namespace JPlayer.Business.Services
         public async Task<int> GetUsersCount(UserCriteria userCriteria)
         {
             userCriteria ??= new UserCriteria();
-            return await this.UserFilterd(userCriteria).CountAsync();
+            return await this.UserFiltered(userCriteria).CountAsync();
         }
 
 
@@ -81,14 +81,15 @@ namespace JPlayer.Business.Services
             }
 
             UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(user);
-            result.Profiles = user.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            result.Profiles =
+                user.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
             return result;
         }
 
         /// <summary>
         ///     Create a new user
         /// </summary>
-        /// <param name="userCreateForm">New user informations</param>
+        /// <param name="userCreateForm">New user information</param>
         /// <exception cref="ApiAlreadyExistException"></exception>
         /// <exception cref="ApiNotFoundException"></exception>
         /// <returns>New created user</returns>
@@ -100,20 +101,20 @@ namespace JPlayer.Business.Services
                 throw new ApiAlreadyExistException(GlobalLabelCodes.UserAlreadyExist);
             }
 
-            UsrUserDao newUsrUser = new UsrUserDao
+            UsrUserDao newUsrUser = new()
             {
                 CreationDate = DateTime.Now,
                 Login = userCreateForm.Login,
                 Password = PasswordHelper.Crypt(userCreateForm.Login, userCreateForm.Password)
             };
 
-            List<UsrUserProfileDao> userProfiles = new List<UsrUserProfileDao>();
+            List<UsrUserProfileDao> userProfiles = new();
             foreach (int profileId in userCreateForm.Profiles)
             {
                 UsrProfileDao profile = await this._dbContext.Profiles.FindAsync(profileId);
                 if (profile == null)
                 {
-                    this._logger.LogInformation($"Try to assiocate unkown profile with id {profileId}");
+                    this._logger.LogInformation("Try to associate unknown profile with id {Profile}", profileId);
                     throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
                 }
 
@@ -125,7 +126,9 @@ namespace JPlayer.Business.Services
             await this._dbContext.SaveChangesAsync();
 
             UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(newUsrUser);
-            result.Profiles = newUsrUser.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            result.Profiles =
+                newUsrUser.UserProfiles.Select(up =>
+                    this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
             return result;
         }
 
@@ -133,7 +136,7 @@ namespace JPlayer.Business.Services
         ///     Update an user
         /// </summary>
         /// <param name="id">User id</param>
-        /// <param name="userCreateForm">Updated user informations</param>
+        /// <param name="userCreateForm">Updated user information</param>
         /// <exception cref="ApiNotFoundException"></exception>
         /// <exception cref="ApiException"></exception>
         /// <returns>Updated user</returns>
@@ -159,26 +162,26 @@ namespace JPlayer.Business.Services
                 UsrProfileDao profile = await this._dbContext.Profiles.FirstOrDefaultAsync(f => f.Id == profileId);
                 if (profile == null)
                 {
-                    this._logger.LogInformation($"Try to associate unknown profile with id {profileId}");
+                    this._logger.LogInformation("Try to associate unknown profile with id {Profile}", profileId);
                     throw new ApiNotFoundException(GlobalLabelCodes.ProfileNotFound);
                 }
 
                 // Add profiles to the user if not exist
                 if (!userProfiles.Any(up => up.ProfileId == profileId))
-                    await this._dbContext.UserProfiles.AddAsync(new UsrUserProfileDao {UserId = id, ProfileId = profileId});
+                    await this._dbContext.UserProfiles.AddAsync(new UsrUserProfileDao
+                        {UserId = id, ProfileId = profileId});
             }
 
             // Remove a profile from the user if not given
             foreach (UsrUserProfileDao userProfile in userProfiles)
-            {
                 if (userCreateForm.Profiles.All(p => p != userProfile.ProfileId))
                     this._dbContext.UserProfiles.Remove(userProfile);
-            }
 
             await this._dbContext.SaveChangesAsync();
 
             UserEntity result = this._mapper.Map<UserEntity, UsrUserDao>(usrUser);
-            result.Profiles = usrUser.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
+            result.Profiles =
+                usrUser.UserProfiles.Select(up => this._mapper.Map<ProfileCollectionItem, UsrProfileDao>(up.Profile));
             return result;
         }
 
@@ -213,7 +216,7 @@ namespace JPlayer.Business.Services
         /// </summary>
         /// <param name="userCriteria">Search filter</param>
         /// <returns>Filtered DbSet</returns>
-        private IQueryable<UsrUserDao> UserFilterd(UserCriteria userCriteria)
+        private IQueryable<UsrUserDao> UserFiltered(UserCriteria userCriteria)
         {
             IQueryable<UsrUserDao> filtered = this._dbContext.Users.AsQueryable();
             if (!string.IsNullOrWhiteSpace(userCriteria.Login))
@@ -221,8 +224,12 @@ namespace JPlayer.Business.Services
 
             filtered = userCriteria.SortField.ToLower() switch
             {
-                "login" => userCriteria.SortDir == SortDir.Asc ? filtered.OrderBy(o => o.Login) : filtered.OrderByDescending(o => o.Login),
-                "creationdate" => userCriteria.SortDir == SortDir.Asc ? filtered.OrderBy(o => o.CreationDate) : filtered.OrderByDescending(o => o.CreationDate),
+                "login" => userCriteria.SortDir == SortDir.Asc
+                    ? filtered.OrderBy(o => o.Login)
+                    : filtered.OrderByDescending(o => o.Login),
+                "creationdate" => userCriteria.SortDir == SortDir.Asc
+                    ? filtered.OrderBy(o => o.CreationDate)
+                    : filtered.OrderByDescending(o => o.CreationDate),
                 _ => filtered
             };
 

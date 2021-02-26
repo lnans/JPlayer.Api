@@ -38,7 +38,7 @@ namespace JPlayer.Api.Controllers
         [HttpGet("administration")]
         [Authorize(Roles = JPlayerRoles.UserRead + "," + JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<TileCollectionItem>>), (int) HttpStatusCode.OK)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.HmiSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.HmiSection})]
         public async Task<IActionResult> GetAdministrationTiles()
         {
             this._logger.LogInformation("Retrieve administration tiles information");

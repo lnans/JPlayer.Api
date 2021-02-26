@@ -37,11 +37,11 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.UserRead)]
         [ProducesResponseType(typeof(ApiResult<Page<UserCollectionItem>>), 200)]
-        [SwaggerOperation(Tags = new []{ SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> GetMany([FromQuery] UserCriteria criteria)
         {
             this._logger.LogInformation("Retrieve user list");
-            Page<UserCollectionItem> result = new Page<UserCollectionItem>
+            Page<UserCollectionItem> result = new()
             {
                 TotalCount = await this._userService.GetUsersCount(criteria),
                 List = await this._userService.GetUsers(criteria),
@@ -62,12 +62,12 @@ namespace JPlayer.Api.Controllers
         [Authorize(Roles = JPlayerRoles.UserRead)]
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> GetOne(int id)
         {
             try
             {
-                this._logger.LogInformation($"Retrieve user with {id}");
+                this._logger.LogInformation("Retrieve user with {Id}", id);
                 UserEntity result = await this._userService.GetUser(id);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -89,12 +89,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 400)]
         [ProducesResponseType(typeof(ApiError), 404)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> Create([FromBody] UserCreateForm userCreateForm)
         {
             try
             {
-                this._logger.LogInformation($"Create user attempt with login {userCreateForm.Login}");
+                this._logger.LogInformation("Create user attempt with login {Login}", userCreateForm.Login);
                 UserEntity result = await this._userService.CreateUser(userCreateForm);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -122,12 +122,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<UserEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> Update(int id, [FromBody] UserUpdateForm userUpdateForm)
         {
             try
             {
-                this._logger.LogInformation($"Update user with id {id}");
+                this._logger.LogInformation("Update user with id {Id}", id);
                 UserEntity result = await this._userService.UpdateUser(id, userUpdateForm);
                 return this.Ok(result.AsApiResult("userEntity"));
             }
@@ -154,12 +154,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                this._logger.LogInformation($"Delete user attempt with id {id}");
+                this._logger.LogInformation("Delete user attempt with id {Id}", id);
                 await this._userService.DeleteUser(id);
                 return this.Ok(true.AsApiResult());
             }

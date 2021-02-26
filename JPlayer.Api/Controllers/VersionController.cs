@@ -1,4 +1,5 @@
 ﻿using JPlayer.Data.Dto.Version;
+using JPlayer.Lib.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,6 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize]
         [ProducesResponseType(typeof(ApplicationVersion), 200)]
-        public IActionResult GetVersion() => this.Ok(new ApplicationVersion(typeof(Program)));
+        public IActionResult GetVersion() => this.Ok(new ApplicationVersion(typeof(Program)).AsApiResult());
     }
 }

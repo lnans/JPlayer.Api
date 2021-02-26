@@ -9,7 +9,7 @@
 
     public static class ApiResultExtension
     {
-        public static ApiResult<T> AsApiResult<T>(this T result, string resourceType = "") => new ApiResult<T>
+        public static ApiResult<T> AsApiResult<T>(this T result, string resourceType = "") => new()
         {
             Data = result,
             ResourceType = resourceType

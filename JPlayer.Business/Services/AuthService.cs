@@ -36,13 +36,13 @@ namespace JPlayer.Business.Services
         ///     Sign In a known user into the system
         /// </summary>
         /// <param name="httpContext">Current controller context</param>
-        /// <param name="credentialsForm">Credetnials of the user</param>
+        /// <param name="credentialsForm">Credentials of the user</param>
         /// <exception cref="AuthenticationException"></exception>
-        /// <returns>User informations</returns>
+        /// <returns>User information</returns>
         public async Task<CredentialsInfo> SignInAsync(HttpContext httpContext, CredentialsForm credentialsForm)
         {
             // Check user in database
-            this._logger.LogInformation("Get user informations");
+            this._logger.LogInformation("Get user information");
             UsrUserDao user = await this._dbContext.Users
                 .Include(u => u.UserProfiles)
                 .ThenInclude(up => up.Profile)
@@ -69,13 +69,14 @@ namespace JPlayer.Business.Services
                 .ToList();
 
             // Create Identity
-            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            ClaimsIdentity identity = new(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name,
+                ClaimTypes.Role);
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Login));
             identity.AddClaims(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-            AuthenticationProperties authProperties = new AuthenticationProperties
+            ClaimsPrincipal principal = new(identity);
+            AuthenticationProperties authProperties = new()
             {
                 AllowRefresh = true,
                 IsPersistent = true,

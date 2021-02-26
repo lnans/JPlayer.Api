@@ -6,7 +6,7 @@ namespace JPlayer.Lib.Object
     {
         public static string ToJson(this object value)
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings
+            JsonSerializerSettings settings = new()
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };

@@ -24,8 +24,9 @@ namespace JPlayer.Test.Administration
             this.InitDbContext();
             this._loggerProfileService = new NLogLoggerFactory().CreateLogger<ProfileService>();
             this._loggerProfileController = new NLogLoggerFactory().CreateLogger<ProfileController>();
-            this._profileService = new ProfileService(this._loggerProfileService, this._dbContext, new ObjectMapper());
-            this._profileController = this.CreateTestController(new ProfileController(this._loggerProfileController, this._profileService));
+            this._profileService = new ProfileService(this._loggerProfileService, this.DbContext, new ObjectMapper());
+            this._profileController =
+                this.CreateTestController(new ProfileController(this._loggerProfileController, this._profileService));
         }
 
         [TearDown]
@@ -42,9 +43,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task GetMany_ShouldReturn_ProfileList_WithStatus200()
         {
+            // Act
             IActionResult actionResult = await this._profileController.GetMany(new ProfileCriteria());
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
@@ -59,9 +62,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task GetOne_KnownProfile_ShouldReturn_Profile_WithStatus200()
         {
+            // Act
             IActionResult actionResult = await this._profileController.GetOne(1);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
@@ -74,9 +79,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task GetOne_UnknownProfile_ShouldReturn_ApiError_WithStatus404()
         {
+            // Act
             IActionResult actionResult = await this._profileController.GetOne(99);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
 
@@ -89,14 +96,18 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task CreateOne_NewProfile_ShouldReturn_NewProfile_WithStatus200()
         {
-            ProfileCreateForm profileCreateForm = new ProfileCreateForm
+            // Arrange
+            ProfileCreateForm profileCreateForm = new()
             {
                 Name = "FakeProfile",
                 FunctionIds = new[] {1}
             };
+
+            // Act
             IActionResult actionResult = await this._profileController.CreateOne(profileCreateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
@@ -107,16 +118,44 @@ namespace JPlayer.Test.Administration
         }
 
         [Test]
+        public async Task CreateOne_NewProfile_WithUnknownFunctions_ShouldReturn_ApiError_WithStatus404()
+        {
+            // Arrange
+            ProfileCreateForm profileCreateForm = new()
+            {
+                Name = "FakeProfile",
+                FunctionIds = new[] {99}
+            };
+
+            // Act
+            IActionResult actionResult = await this._profileController.CreateOne(profileCreateForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.FunctionNotFound, error.Error);
+        }
+
+        [Test]
         public async Task CreateOne_AlreadyExistProfile_ShouldReturn_ApiError_WithStatus400()
         {
-            ProfileCreateForm profileCreateForm = new ProfileCreateForm
+            // Arrange
+            ProfileCreateForm profileCreateForm = new()
             {
                 Name = "Administrator",
                 FunctionIds = new[] {1}
             };
+
+            // Act
             IActionResult actionResult = await this._profileController.CreateOne(profileCreateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.BadRequest, result.StatusCode);
 
@@ -129,13 +168,17 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task UpdateOne_ReadOnlyProfile_ShouldReturn_ApiError_WithStatus409()
         {
-            ProfileUpdateForm profileUpdateForm = new ProfileUpdateForm
+            // Arrange
+            ProfileUpdateForm profileUpdateForm = new()
             {
                 FunctionIds = new[] {1}
             };
+
+            // Act
             IActionResult actionResult = await this._profileController.UpdateOne(1, profileUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Conflict, result.StatusCode);
 
@@ -148,19 +191,19 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task UpdateOne_KnownProfile_ShouldReturn_ApiError_WithStatus200()
         {
-            // Prepare
-            UsrProfileDao profileDao = new UsrProfileDao
+            // Arrange
+            UsrProfileDao profileDao = new()
             {
                 Name = "FakeProfile"
             };
-            await this._dbContext.Profiles.AddAsync(profileDao);
-            await this._dbContext.SaveChangesAsync();
-
-            // Act
-            ProfileUpdateForm profileUpdateForm = new ProfileUpdateForm
+            await this.DbContext.Profiles.AddAsync(profileDao);
+            await this.DbContext.SaveChangesAsync();
+            ProfileUpdateForm profileUpdateForm = new()
             {
                 FunctionIds = new[] {1}
             };
+
+            // Act
             IActionResult actionResult = await this._profileController.UpdateOne(profileDao.Id, profileUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -178,13 +221,17 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task UpdateOne_UnknownProfile_ShouldReturn_ApiError_WithStatus404()
         {
-            ProfileUpdateForm profileUpdateForm = new ProfileUpdateForm
+            // Arrange
+            ProfileUpdateForm profileUpdateForm = new()
             {
                 FunctionIds = new[] {1}
             };
+
+            // Act
             IActionResult actionResult = await this._profileController.UpdateOne(99, profileUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
 
@@ -197,13 +244,13 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task DeleteOne_KnownProfile_ShouldReturn_Status200()
         {
-            // Prepare
-            UsrProfileDao profileDao = new UsrProfileDao
+            // Arrange
+            UsrProfileDao profileDao = new()
             {
                 Name = "FakeProfile"
             };
-            await this._dbContext.Profiles.AddAsync(profileDao);
-            await this._dbContext.SaveChangesAsync();
+            await this.DbContext.Profiles.AddAsync(profileDao);
+            await this.DbContext.SaveChangesAsync();
 
             // Act
             IActionResult actionResult = await this._profileController.DeleteOne(profileDao.Id);
@@ -217,11 +264,13 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task DeleteOne_ReadOnlyProfile_ShouldReturn_ApiError_WithStatus409()
         {
+            // Act
             IActionResult actionResult = await this._profileController.DeleteOne(1);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual((int)HttpStatusCode.Conflict, result.StatusCode);
+            Assert.AreEqual((int) HttpStatusCode.Conflict, result.StatusCode);
 
             ApiError error = result.Value as ApiError;
 
@@ -232,11 +281,13 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task DeleteOne_UnknownProfile_ShouldReturn_ApiError_WithStatus404()
         {
+            // Act
             IActionResult actionResult = await this._profileController.DeleteOne(99);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+            Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
 
             ApiError error = result.Value as ApiError;
 

@@ -12,7 +12,7 @@ namespace JPlayer.Lib.Object
     public class ObjectMapper
     {
         private readonly ConcurrentDictionary<Tuple<Type, Type>, Delegate> _mapCache =
-            new ConcurrentDictionary<Tuple<Type, Type>, Delegate>();
+            new();
 
         public TDest Map<TDest, TSource>(TSource source) where TDest : new() => this.Map(source, new TDest());
 
@@ -36,10 +36,8 @@ namespace JPlayer.Lib.Object
                 MakeAssignments(typeof(TSource), typeof(TDest), srcArg, destArg).ToList();
 
             if (!assignments.Any())
-            {
-                throw new InvalidOperationException(string.Format(
-                    "No matching properties were found between the types {0} and {1}", typeof(TSource), typeof(TDest)));
-            }
+                throw new InvalidOperationException(
+                    $"No matching properties were found between the types {typeof(TSource)} and {typeof(TDest)}");
 
             BlockExpression assignmentsBlock = Expression.Block(assignments);
             BlockExpression blockExp = Expression.Block(typeof(TDest), assignmentsBlock, destArg);
@@ -56,7 +54,7 @@ namespace JPlayer.Lib.Object
         {
             Dictionary<string, PropertyInfo> sourceProps = sourceType.GetRuntimeProperties().ToDictionary(p => p.Name);
             Dictionary<string, PropertyInfo> destProps = destType.GetRuntimeProperties().ToDictionary(p => p.Name);
-            List<Expression> assignments = new List<Expression>();
+            List<Expression> assignments = new();
 
             foreach (KeyValuePair<string, PropertyInfo> srcProp in sourceProps)
             {

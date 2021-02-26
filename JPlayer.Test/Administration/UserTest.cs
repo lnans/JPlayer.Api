@@ -25,8 +25,9 @@ namespace JPlayer.Test.Administration
             this.InitDbContext();
             this._loggerUserService = new NLogLoggerFactory().CreateLogger<UserService>();
             this._loggerUserController = new NLogLoggerFactory().CreateLogger<UserController>();
-            this._userService = new UserService(this._loggerUserService, this._dbContext, new ObjectMapper());
-            this._userController = this.CreateTestController(new UserController(this._loggerUserController, this._userService));
+            this._userService = new UserService(this._loggerUserService, this.DbContext, new ObjectMapper());
+            this._userController =
+                this.CreateTestController(new UserController(this._loggerUserController, this._userService));
         }
 
         [TearDown]
@@ -91,7 +92,7 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task PostOne_NewUser_ShouldReturn_Status200()
         {
-            UserCreateForm userCreateForm = new UserCreateForm {Login = "NewUser", Password = "NewUser", Profiles = new[] {1}};
+            UserCreateForm userCreateForm = new() {Login = "NewUser", Password = "NewUser", Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Create(userCreateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -104,7 +105,7 @@ namespace JPlayer.Test.Administration
             Assert.AreEqual("NewUser", user.Data.Login);
             Assert.AreEqual(1, user.Data.Profiles.Count());
 
-            UsrUserDao userDb = await this._dbContext.Users.FindAsync(user.Data.Id);
+            UsrUserDao userDb = await this.DbContext.Users.FindAsync(user.Data.Id);
 
             Assert.IsNotNull(userDb);
             Assert.AreEqual("NewUser", userDb.Login);
@@ -112,9 +113,25 @@ namespace JPlayer.Test.Administration
         }
 
         [Test]
+        public async Task PostOne_NewUser_WithUnknownProfile_ShouldReturn_ApiError_WithStatus404()
+        {
+            UserCreateForm userCreateForm = new() {Login = "NewUser", Password = "NewUser", Profiles = new[] {99}};
+            IActionResult actionResult = await this._userController.Create(userCreateForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+
+            ApiError error = result.Value as ApiError;
+
+            Assert.IsNotNull(error);
+            Assert.AreEqual(GlobalLabelCodes.ProfileNotFound, error.Error);
+        }
+
+        [Test]
         public async Task PostOne_KnownUser_ShouldReturn_ApiError_WithStatus400()
         {
-            UserCreateForm userCreateForm = new UserCreateForm {Login = "UserAdmin", Password = "NewUser", Profiles = new[] {1}};
+            UserCreateForm userCreateForm = new() {Login = "UserAdmin", Password = "NewUser", Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Create(userCreateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -130,11 +147,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task PutOne_KnownUser_ShouldReturn_Status200()
         {
-            UsrUserDao fakeUser = new UsrUserDao {Login = "FakeUser", Password = PasswordHelper.Crypt("FakeUser", "FakeUser")};
-            await this._dbContext.Users.AddAsync(fakeUser);
-            await this._dbContext.SaveChangesAsync();
+            UsrUserDao fakeUser = new() {Login = "FakeUser", Password = PasswordHelper.Crypt("FakeUser", "FakeUser")};
+            await this.DbContext.Users.AddAsync(fakeUser);
+            await this.DbContext.SaveChangesAsync();
 
-            UserUpdateForm userUpdateForm = new UserUpdateForm {Profiles = new[] {1}};
+            UserUpdateForm userUpdateForm = new() {Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Update(fakeUser.Id, userUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -151,7 +168,7 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task PutOne_ReadOnlyUser_ShoudReturn_Status409()
         {
-            UserUpdateForm userUpdateForm = new UserUpdateForm {Profiles = new[] {1}};
+            UserUpdateForm userUpdateForm = new() {Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Update(1, userUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -167,7 +184,7 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task PutOne_UnkownUser_ShouldReturn_Status404()
         {
-            UserUpdateForm userUpdateForm = new UserUpdateForm {Profiles = new[] {1}};
+            UserUpdateForm userUpdateForm = new() {Profiles = new[] {1}};
             IActionResult actionResult = await this._userController.Update(99, userUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
@@ -183,16 +200,16 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task DeleteOne_KnownUser_ShouldReturn_Status200()
         {
-            UsrUserDao fakeUser = new UsrUserDao {Login = "FakeUser", Password = PasswordHelper.Crypt("FakeUser", "FakeUser")};
-            await this._dbContext.Users.AddAsync(fakeUser);
-            await this._dbContext.SaveChangesAsync();
+            UsrUserDao fakeUser = new() {Login = "FakeUser", Password = PasswordHelper.Crypt("FakeUser", "FakeUser")};
+            await this.DbContext.Users.AddAsync(fakeUser);
+            await this.DbContext.SaveChangesAsync();
 
             IActionResult actionResult = await this._userController.Delete(fakeUser.Id);
             ObjectResult result = actionResult as ObjectResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
-            Assert.AreEqual(1, this._dbContext.Users.Count());
+            Assert.AreEqual(1, this.DbContext.Users.Count());
         }
 
         [Test]

@@ -34,11 +34,11 @@ namespace JPlayer.Api.Controllers
         [HttpGet("")]
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<Page<ProfileCollectionItem>>), 200)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> GetMany([FromQuery] ProfileCriteria criteria)
         {
             this._logger.LogInformation("Retrieve profile list");
-            Page<ProfileCollectionItem> result = new Page<ProfileCollectionItem>
+            Page<ProfileCollectionItem> result = new()
             {
                 TotalCount = await this._profileService.GetCount(criteria),
                 List = await this._profileService.GetMany(criteria),
@@ -60,12 +60,12 @@ namespace JPlayer.Api.Controllers
         [Authorize(Roles = JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> GetOne(int id)
         {
             try
             {
-                this._logger.LogInformation($"Retrieve profile with id {id}");
+                this._logger.LogInformation("Retrieve profile with id {Id}", id);
                 ProfileEntity result = await this._profileService.GetOne(id);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -88,12 +88,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 400)]
         [ProducesResponseType(typeof(ApiError), 404)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> CreateOne([FromBody] ProfileCreateForm createForm)
         {
             try
             {
-                this._logger.LogInformation($"Create profile attempt with name {createForm.Name}");
+                this._logger.LogInformation("Create profile attempt with name {Name}", createForm.Name);
                 ProfileEntity result = await this._profileService.CreateOne(createForm);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -121,12 +121,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<ProfileEntity>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> UpdateOne(int id, [FromBody] ProfileUpdateForm updateForm)
         {
             try
             {
-                this._logger.LogInformation($"Update profile attempt with id {id}");
+                this._logger.LogInformation("Update profile attempt with id {Id}", id);
                 ProfileEntity result = await this._profileService.UpdateOne(id, updateForm);
                 return this.Ok(result.AsApiResult("profileEntity"));
             }
@@ -153,12 +153,12 @@ namespace JPlayer.Api.Controllers
         [ProducesResponseType(typeof(ApiResult<bool>), 200)]
         [ProducesResponseType(typeof(ApiError), 404)]
         [ProducesResponseType(typeof(ApiError), 409)]
-        [SwaggerOperation(Tags = new[] { SwaggerTags.AdministrationSection })]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.AdministrationSection})]
         public async Task<IActionResult> DeleteOne(int id)
         {
             try
             {
-                this._logger.LogInformation($"Delete profile attempt with id {id}");
+                this._logger.LogInformation("Delete profile attempt with id {Id}", id);
                 await this._profileService.DeleteOne(id);
                 return this.Ok(true.AsApiResult());
             }

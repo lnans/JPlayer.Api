@@ -22,7 +22,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace JPlayer.Api.AppStart
 {
@@ -72,11 +71,24 @@ namespace JPlayer.Api.AppStart
 
             // Routing
             services.AddCustomAuthentication(authCookieName, authExpirationTime);
-            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-            services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = ctx => new ValidationMiddleware());
+            services.AddControllers().AddJsonOptions(options => options
+                .JsonSerializerOptions
+                .Converters
+                .Add(new JsonStringEnumConverter())
+            );
+            services.Configure<ApiBehaviorOptions>(options => options
+                    .InvalidModelStateResponseFactory = ctx => new ValidationMiddleware()
+            );
 
             // Cors
-            services.AddCors(options => options.AddPolicy("CustomCors", builder => builder.WithOrigins(allowOrigin).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+            services.AddCors(options => options
+                .AddPolicy("CustomCors", builder => builder
+                    .WithOrigins(allowOrigin)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                )
+            );
 
             // Swagger
             services.AddCustomSwaggerGen(this._assemblyName, this._assemblyVersion, this._appName);
@@ -109,7 +121,9 @@ namespace JPlayer.Api.AppStart
 
             // Swagger
             app.UseSwagger();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint($"/swagger/{this._assemblyName}/swagger.json", this._assemblyName));
+            app.UseSwaggerUI(options => options
+                .SwaggerEndpoint($"/swagger/{this._assemblyName}/swagger.json", this._assemblyName)
+            );
 
             // Database
             app.EnsureDbCreated();
@@ -120,25 +134,29 @@ namespace JPlayer.Api.AppStart
     {
         public static void EnsureDbCreated(this IApplicationBuilder app)
         {
-            using IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
+            using IServiceScope serviceScope =
+                app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
             ApplicationDbContext context = serviceScope?.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             context?.Database.EnsureCreated();
         }
 
-        public static void AddCustomSwaggerGen(this IServiceCollection services, string assemblyName, string appVersion, string appName)
+        public static void AddCustomSwaggerGen(this IServiceCollection services, string assemblyName, string appVersion,
+            string appName)
         {
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc(assemblyName, new OpenApiInfo {Title = assemblyName, Version = appVersion});
                 options.DescribeAllParametersInCamelCase();
                 options.EnableAnnotations();
-                string[] docs = Directory.GetFiles(AppContext.BaseDirectory, $"{appName}.*.xml", SearchOption.TopDirectoryOnly);
+                string[] docs = Directory.GetFiles(AppContext.BaseDirectory, $"{appName}.*.xml",
+                    SearchOption.TopDirectoryOnly);
                 foreach (string xmlPath in docs)
                     options.IncludeXmlComments(xmlPath);
             });
         }
 
-        public static void AddCustomAuthentication(this IServiceCollection services, string cookieName, int expirationTime)
+        public static void AddCustomAuthentication(this IServiceCollection services, string cookieName,
+            int expirationTime)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -148,7 +166,7 @@ namespace JPlayer.Api.AppStart
                     options.Cookie.SameSite = SameSiteMode.None;
                     options.ExpireTimeSpan = TimeSpan.FromHours(expirationTime);
 
-                    JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+                    JsonSerializerOptions jsonOptions = new()
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                     };
@@ -159,7 +177,9 @@ namespace JPlayer.Api.AppStart
                         {
                             context.Response.StatusCode = 403;
                             context.Response.ContentType = "application/json";
-                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthorized).AsApiError(), JsonOptions);
+                            JsonSerializer.SerializeAsync(context.Response.Body,
+                                new AuthenticationException(GlobalLabelCodes.AuthNotAuthorized).AsApiError(),
+                                jsonOptions);
                             context.Response.Body.FlushAsync().ConfigureAwait(false);
                             return Task.CompletedTask;
                         },
@@ -167,7 +187,9 @@ namespace JPlayer.Api.AppStart
                         {
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            JsonSerializer.SerializeAsync(context.Response.Body, new AuthenticationException(GlobalLabelCodes.AuthNotAuthenticated).AsApiError(), JsonOptions);
+                            JsonSerializer.SerializeAsync(context.Response.Body,
+                                new AuthenticationException(GlobalLabelCodes.AuthNotAuthenticated).AsApiError(),
+                                jsonOptions);
                             context.Response.Body.FlushAsync().ConfigureAwait(false);
                             return Task.CompletedTask;
                         }

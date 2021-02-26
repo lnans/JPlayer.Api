@@ -27,7 +27,8 @@ namespace JPlayer.Business.Services
         /// <returns></returns>
         public async Task<IEnumerable<TileCollectionItem>> GetAdminTiles(string[] functions)
         {
-            this._logger.LogInformation($"Getting administration tiles information with functions {string.Join(", ", functions)}");
+            this._logger.LogInformation("Getting administration tiles information with functions {Functions}",
+                string.Join(", ", functions));
             List<TileCollectionItem> tiles = new();
 
             if (functions.Contains(JPlayerRoles.UserRead))
@@ -55,7 +56,7 @@ namespace JPlayer.Business.Services
                 });
             }
 
-            this._logger.LogInformation($"{tiles.Count} tiles return");
+            this._logger.LogInformation("{Count} tiles return", tiles.Count);
 
             return tiles;
         }

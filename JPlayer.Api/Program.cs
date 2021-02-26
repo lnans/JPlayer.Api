@@ -33,10 +33,7 @@ namespace JPlayer.Api
 
         private static Action<ILoggingBuilder> LogConfig()
         {
-            return logging =>
-            {
-                logging.SetMinimumLevel(LogLevel.Trace);
-            };
+            return logging => { logging.SetMinimumLevel(LogLevel.Trace); };
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>

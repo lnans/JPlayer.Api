@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using JPlayer.Data;
 using JPlayer.Data.Dao;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +17,23 @@ namespace JPlayer.Test
     {
         private readonly IServiceProvider _controllerServiceProvider;
 
-        protected ApplicationDbContext _dbContext;
+        protected ApplicationDbContext DbContext;
 
         protected AbstractBaseTest()
         {
             // Create Mocks for httpContext SignIn method on controllers
-            Mock<IAuthenticationService> authServiceMock = new Mock<IAuthenticationService>();
+            Mock<IAuthenticationService> authServiceMock = new();
             authServiceMock
-                .Setup(_ => _.SignInAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<AuthenticationProperties>()))
+                .Setup(_ =>
+                    _.SignInAsync(It.IsAny<HttpContext>(),
+                        It.IsAny<string>(),
+                        It.IsAny<ClaimsPrincipal>(),
+                        It.IsAny<AuthenticationProperties>()
+                    )
+                )
                 .Returns(Task.FromResult((object) null));
 
-            Mock<IServiceProvider> serviceProviderMock = new Mock<IServiceProvider>();
+            Mock<IServiceProvider> serviceProviderMock = new();
             serviceProviderMock
                 .Setup(_ => _.GetService(typeof(IAuthenticationService)))
                 .Returns(authServiceMock.Object);
@@ -34,15 +43,34 @@ namespace JPlayer.Test
 
         protected void InitDbContext()
         {
-            DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
+            DbContextOptionsBuilder builder = new();
             builder.UseSqlite("Data Source=jplayer.test.db");
-            this._dbContext = new ApplicationDbContext(builder.Options);
-            this._dbContext.Database.EnsureCreated();
+            this.DbContext = new ApplicationDbContext(builder.Options);
+            this.DbContext.Database.EnsureCreated();
         }
 
         protected void CleanDbContext()
         {
-            this._dbContext.Database.EnsureDeleted();
+            this.DbContext.Database.EnsureDeleted();
+        }
+
+        protected static ClaimsPrincipal CreateUser(string login, string id)
+        {
+            string[] roles =
+            {
+                JPlayerRoles.UserRead,
+                JPlayerRoles.ProfileRead,
+                JPlayerRoles.UserWrite,
+                JPlayerRoles.ProfileWrite
+            };
+            ClaimsIdentity identity = new(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name,
+                ClaimTypes.Role);
+            identity.AddClaim(new Claim(ClaimTypes.Name, login));
+            identity.AddClaims(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+            if (id != null) identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, id));
+
+            return new ClaimsPrincipal(identity);
         }
 
         protected T CreateTestController<T>(T controller) where T : ControllerBase

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using JPlayer.Api.Controllers;
 using JPlayer.Business;
@@ -8,7 +7,6 @@ using JPlayer.Data.Dao.Model;
 using JPlayer.Data.Dto.Credentials;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Crypto;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
@@ -25,8 +23,9 @@ namespace JPlayer.Test.Administration
             this.InitDbContext();
             this._loggerAuthService = new NLogLoggerFactory().CreateLogger<AuthService>();
             this._loggerAuthController = new NLogLoggerFactory().CreateLogger<AuthController>();
-            this._authService = new AuthService(this._loggerAuthService, this._dbContext);
-            this._authController = this.CreateTestController(new AuthController(this._loggerAuthController, this._authService));
+            this._authService = new AuthService(this._loggerAuthService, this.DbContext);
+            this._authController =
+                this.CreateTestController(new AuthController(this._loggerAuthController, this._authService));
         }
 
         [TearDown]
@@ -43,10 +42,14 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task SignIn_WithGoodCred_ShouldReturn_CredentialsInfo_WithStatus200()
         {
-            CredentialsForm credentialsForm = new CredentialsForm {Login = "UserAdmin", Password = "UserAdmin"};
+            // Arrange credentials form
+            CredentialsForm credentialsForm = new() {Login = "UserAdmin", Password = "UserAdmin"};
+
+            // Act
             IActionResult actionResult = await this._authController.SignIn(credentialsForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
@@ -58,10 +61,14 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task SignIn_WithWrongPassword_ShouldReturn_ApiError_WithStatus401()
         {
-            CredentialsForm credentialsForm = new CredentialsForm {Login = "UserAdmin", Password = "WrongPassword"};
+            // Arrange credentials form
+            CredentialsForm credentialsForm = new() {Login = "UserAdmin", Password = "WrongPassword"};
+
+            // Act
             IActionResult actionResult = await this._authController.SignIn(credentialsForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
 
@@ -73,12 +80,16 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task SignIn_WithWrongLogin_ShouldReturn_ApiError_WithStatus401()
         {
-            CredentialsForm credentialsForm = new CredentialsForm { Login = "WrongLogin", Password = "UserAdmin" };
+            // Arrange credentials form
+            CredentialsForm credentialsForm = new() {Login = "WrongLogin", Password = "UserAdmin"};
+
+            // Act
             IActionResult actionResult = await this._authController.SignIn(credentialsForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual((int)HttpStatusCode.Unauthorized, result.StatusCode);
+            Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
 
             ApiError apiError = result.Value as ApiError;
             Assert.IsNotNull(apiError);
@@ -88,14 +99,14 @@ namespace JPlayer.Test.Administration
         [Test]
         public void GetIdentity_ShouldReturn_CredentialsInfo_WithStatus200()
         {
-            // Create fake authentication
-            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-            identity.AddClaim(new Claim(ClaimTypes.Name, "UserAdmin"));
-            this._authController.HttpContext.User = new ClaimsPrincipal(identity);
+            // Arrange authentication
+            this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
 
+            // Act
             IActionResult actionResult = this._authController.GetIdentity();
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
@@ -107,9 +118,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task SignOut_ShouldReturn_Status200()
         {
+            // Act
             IActionResult actionResult = await this._authController.SignOut();
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
         }
@@ -117,36 +130,36 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task UpdateCredentials_WithGoodCred_ShouldReturn_Status200()
         {
-            // Create fake authentication
-            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-            identity.AddClaim(new Claim(ClaimTypes.Name, "UserAdmin"));
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "1"));
-            this._authController.HttpContext.User = new ClaimsPrincipal(identity);
+            // Arrange
+            this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
+            CredentialsUpdateForm credentialsUpdateForm =
+                new() {CurrentPassword = "UserAdmin", NewPassword = "NewPassword"};
 
-            CredentialsUpdateForm credentialsUpdateForm = new CredentialsUpdateForm {CurrentPassword = "UserAdmin", NewPassword = "NewPassword"};
+            // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 
-            UsrUserDao user = await this._dbContext.Users.FindAsync(1);
+            UsrUserDao user = await this.DbContext.Users.FindAsync(1);
             Assert.IsTrue(PasswordHelper.Check(user.Login, "NewPassword", user.Password));
         }
 
         [Test]
         public async Task UpdateCredentials_WithBadCred_ShouldReturn_Status401()
         {
-            // Create fake authentication
-            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-            identity.AddClaim(new Claim(ClaimTypes.Name, "UserAdmin"));
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "1"));
-            this._authController.HttpContext.User = new ClaimsPrincipal(identity);
+            // Arrange
+            this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
+            CredentialsUpdateForm credentialsUpdateForm =
+                new() {CurrentPassword = "WrongPassword", NewPassword = "NewPassword"};
 
-            CredentialsUpdateForm credentialsUpdateForm = new CredentialsUpdateForm {CurrentPassword = "WrongPassword", NewPassword = "NewPassword"};
+            // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
         }
@@ -154,18 +167,35 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task UpdateCredentials_WithWrongIdentifier_ShouldReturn_Status401()
         {
-            // Create fake authentication
-            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-            identity.AddClaim(new Claim(ClaimTypes.Name, "Fake"));
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "2"));
-            this._authController.HttpContext.User = new ClaimsPrincipal(identity);
+            // Arrange
+            this._authController.HttpContext.User = CreateUser("Fake", "99");
+            CredentialsUpdateForm credentialsUpdateForm =
+                new() {CurrentPassword = "Password", NewPassword = "Password"};
 
-            CredentialsUpdateForm credentialsUpdateForm = new CredentialsUpdateForm { CurrentPassword = "Password", NewPassword = "Password" };
+            // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+            Assert.AreEqual((int) HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Test]
+        public async Task UpdateCredentials_WithNullIdentifier_ShouldReturn_Status500()
+        {
+            // Arrange
+            this._authController.HttpContext.User = CreateUser("Fake", null);
+            CredentialsUpdateForm credentialsUpdateForm =
+                new() {CurrentPassword = "Password", NewPassword = "Password"};
+
+            // Act
+            IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
+            StatusCodeResult result = actionResult as StatusCodeResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.InternalServerError, result.StatusCode);
         }
     }
 }

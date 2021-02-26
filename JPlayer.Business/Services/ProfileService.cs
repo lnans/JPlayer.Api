@@ -39,7 +39,8 @@ namespace JPlayer.Business.Services
         public async Task<IEnumerable<ProfileCollectionItem>> GetMany(ProfileCriteria criteria)
         {
             criteria ??= new ProfileCriteria();
-            this._logger.LogInformation($"Get filtered profile list with search criteria: {criteria.ToJson()}");
+            this._logger.LogInformation("Get filtered profile list with search criteria: {Criteria}",
+                criteria.ToJson());
             List<UsrProfileDao> result = await this.ProfileFiltered(criteria)
                 .Skip(criteria.Skip)
                 .Take(criteria.Limit)
@@ -80,14 +81,15 @@ namespace JPlayer.Business.Services
             }
 
             ProfileEntity result = this._mapper.Map<ProfileEntity, UsrProfileDao>(profile);
-            result.Functions = profile.ProfileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
+            result.Functions = profile.ProfileFunctions.Select(pf =>
+                this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
             return result;
         }
 
         /// <summary>
         ///     Create a profile
         /// </summary>
-        /// <param name="createForm">New profile informations</param>
+        /// <param name="createForm">New profile information</param>
         /// <exception cref="ApiNotFoundException"></exception>
         /// <returns>Profile created</returns>
         public async Task<ProfileEntity> CreateOne(ProfileCreateForm createForm)
@@ -99,18 +101,18 @@ namespace JPlayer.Business.Services
                 throw new ApiAlreadyExistException(GlobalLabelCodes.ProfileAlreadyExist);
             }
 
-            UsrProfileDao profile = new UsrProfileDao
+            UsrProfileDao profile = new()
             {
                 Name = createForm.Name
             };
 
-            List<UsrProfileFunctionDao> profileFunctions = new List<UsrProfileFunctionDao>();
+            List<UsrProfileFunctionDao> profileFunctions = new();
             foreach (int functionId in createForm.FunctionIds)
             {
                 UsrFunctionDao function = await this._dbContext.Functions.FirstOrDefaultAsync(f => f.Id == functionId);
                 if (function == null)
                 {
-                    this._logger.LogInformation($"Try to associate unknown function with {functionId}");
+                    this._logger.LogInformation("Try to associate unknown function with {Function}", functionId);
                     throw new ApiNotFoundException(GlobalLabelCodes.FunctionNotFound);
                 }
 
@@ -126,7 +128,8 @@ namespace JPlayer.Business.Services
             await this._dbContext.SaveChangesAsync();
 
             ProfileEntity result = this._mapper.Map<ProfileEntity, UsrProfileDao>(profile);
-            result.Functions = profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
+            result.Functions =
+                profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
             return result;
         }
 
@@ -134,7 +137,7 @@ namespace JPlayer.Business.Services
         ///     Update a specific profile
         /// </summary>
         /// <param name="id">Profile id</param>
-        /// <param name="updateForm">Profile informations updated</param>
+        /// <param name="updateForm">Profile information updated</param>
         /// <exception cref="ApiNotFoundException"></exception>
         /// <exception cref="ApiException"></exception>
         /// <returns>Profile updated</returns>
@@ -154,32 +157,33 @@ namespace JPlayer.Business.Services
             }
 
             // Get current functions of the profile
-            IQueryable<UsrProfileFunctionDao> profileFunctions = this._dbContext.ProfileFUnctions.Where(pf => pf.ProfileId == id);
+            IQueryable<UsrProfileFunctionDao> profileFunctions =
+                this._dbContext.ProfileFUnctions.Where(pf => pf.ProfileId == id);
             foreach (int functionId in updateForm.FunctionIds)
             {
                 UsrFunctionDao function = await this._dbContext.Functions.FirstOrDefaultAsync(f => f.Id == functionId);
                 if (function == null)
                 {
-                    this._logger.LogInformation($"Try to associate unknown function with {functionId}");
+                    this._logger.LogInformation("Try to associate unknown function with {Function}", functionId);
                     throw new ApiNotFoundException(GlobalLabelCodes.FunctionNotFound);
                 }
 
                 // Add function to the profile if not exist
                 if (!profileFunctions.Any(pf => pf.FunctionId == functionId))
-                    await this._dbContext.ProfileFUnctions.AddAsync(new UsrProfileFunctionDao {ProfileId = id, FunctionId = functionId});
+                    await this._dbContext.ProfileFUnctions.AddAsync(new UsrProfileFunctionDao
+                        {ProfileId = id, FunctionId = functionId});
             }
 
             // Remove a function from the profile if not given
             foreach (UsrProfileFunctionDao profileFunction in profileFunctions)
-            {
                 if (updateForm.FunctionIds.All(r => r != profileFunction.FunctionId))
                     this._dbContext.ProfileFUnctions.Remove(profileFunction);
-            }
 
             await this._dbContext.SaveChangesAsync();
 
             ProfileEntity result = this._mapper.Map<ProfileEntity, UsrProfileDao>(profile);
-            result.Functions = profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
+            result.Functions =
+                profileFunctions.Select(pf => this._mapper.Map<FunctionCollectionItem, UsrFunctionDao>(pf.Function));
             return result;
         }
 
@@ -223,7 +227,9 @@ namespace JPlayer.Business.Services
 
             filtered = criteria.SortField.ToLower() switch
             {
-                "name" => criteria.SortDir == SortDir.Asc ? filtered.OrderBy(o => o.Name) : filtered.OrderByDescending(o => o.Name),
+                "name" => criteria.SortDir == SortDir.Asc
+                    ? filtered.OrderBy(o => o.Name)
+                    : filtered.OrderByDescending(o => o.Name),
                 _ => filtered
             };
             return filtered;

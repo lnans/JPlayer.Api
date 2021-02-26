@@ -22,8 +22,11 @@ namespace JPlayer.Test.Administration
             this.InitDbContext();
             this._loggerFunctionService = new NLogLoggerFactory().CreateLogger<FunctionService>();
             this._loggerFunctionController = new NLogLoggerFactory().CreateLogger<FunctionController>();
-            this._functionService = new FunctionService(this._loggerFunctionService, this._dbContext, new ObjectMapper());
-            this._functionController = this.CreateTestController(new FunctionController(this._loggerFunctionController, this._functionService));
+            this._functionService =
+                new FunctionService(this._loggerFunctionService, this.DbContext, new ObjectMapper());
+            this._functionController =
+                this.CreateTestController(new FunctionController(this._loggerFunctionController,
+                    this._functionService));
         }
 
         [TearDown]
@@ -40,9 +43,11 @@ namespace JPlayer.Test.Administration
         [Test]
         public async Task GetMany_ShouldReturn_FunctionList_WithStatus200()
         {
+            // Act
             IActionResult actionResult = await this._functionController.GetMany(new FunctionCriteria());
             ObjectResult result = actionResult as ObjectResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
 

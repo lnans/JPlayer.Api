@@ -18,7 +18,7 @@ namespace JPlayer.Api.Middleware
             if (ex == null)
                 return;
 
-            ApiError error = new ApiError
+            ApiError error = new()
             {
                 Error = ex.Message,
                 StackTrace = ex.StackTrace,
@@ -27,12 +27,12 @@ namespace JPlayer.Api.Middleware
 
             httpContext.Response.ContentType = "application/json";
 
-            JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+            JsonSerializerOptions jsonOptions = new()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            await JsonSerializer.SerializeAsync(httpContext.Response.Body, error, JsonOptions);
+            await JsonSerializer.SerializeAsync(httpContext.Response.Body, error, jsonOptions);
             await httpContext.Response.Body.FlushAsync().ConfigureAwait(false);
         }
     }

@@ -9,7 +9,7 @@ namespace JPlayer.Test
     public class StartAppTest
     {
         [Test]
-        public void StartApp_Should_Run_WihtoutErrors()
+        public void StartApp_Should_Run_WithoutErrors()
         {
             IWebHost webHost = WebHost.CreateDefaultBuilder().UseStartup<Startup>().Build();
             Assert.IsNotNull(webHost);
