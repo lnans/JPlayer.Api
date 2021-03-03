@@ -21,6 +21,25 @@ namespace JPlayer.Business.Services
         }
 
         /// <summary>
+        ///     Return available menu items for a specific user functions
+        /// </summary>
+        /// <param name="functions">current authenticated user functions</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> GetMenuList(string[] functions)
+        {
+            this._logger.LogInformation("Getting menu list with functions {Functions}",
+                string.Join(", ", functions));
+
+            List<string> types = await this._dbContext.Functions
+                .Where(f => functions.Contains(f.FunctionCode))
+                .Select(f => f.Type)
+                .ToListAsync();
+
+            types.Add(GlobalLabelCodes.DefaultMenu);
+            return types.Distinct();
+        }
+
+        /// <summary>
         ///     Return the available tiles for Administration dashboard for current user functions
         /// </summary>
         /// <param name="functions">current authenticated user functions</param>

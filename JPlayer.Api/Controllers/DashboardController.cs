@@ -32,10 +32,29 @@ namespace JPlayer.Api.Controllers
         }
 
         /// <summary>
+        ///     Return available menu items for the current logged user
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("menu")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResult<IEnumerable<string>>), (int) HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] {SwaggerTags.HmiSection})]
+        public async Task<IActionResult> GetMenuList()
+        {
+            this._logger.LogInformation("Retrieve menu items information");
+            IEnumerable<string> functions = this.HttpContext.User.Claims
+                .Where(cl => cl.Type == ClaimTypes.Role)
+                .Select(cl => cl.Value);
+
+            IEnumerable<string> result = await this._dashboardService.GetMenuList(functions.ToArray());
+            return this.Ok(result.AsApiResult("menuItems"));
+        }
+
+        /// <summary>
         ///     Return available administration tiles for the current logged user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("administration")]
+        [HttpGet("tiles/administration")]
         [Authorize(Roles = JPlayerRoles.UserRead + "," + JPlayerRoles.ProfileRead)]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<TileCollectionItem>>), (int) HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] {SwaggerTags.HmiSection})]

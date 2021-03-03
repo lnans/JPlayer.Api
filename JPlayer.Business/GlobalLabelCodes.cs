@@ -24,5 +24,7 @@
         public const string FunctionNotFound = "function_not_found";
         public const string FunctionTileLabel = "function_tile_label";
         public const string FunctionTileSubLabel = "function_tile_sub_label";
+
+        public const string DefaultMenu = "dashboard";
     }
 }

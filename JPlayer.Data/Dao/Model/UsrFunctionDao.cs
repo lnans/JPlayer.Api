@@ -10,6 +10,8 @@ namespace JPlayer.Data.Dao.Model
 
         public string Name { get; set; }
 
+        public string Type { get; set; }
+
         public virtual ICollection<UsrProfileFunctionDao> ProfileFunctions { get; set; }
     }
 }

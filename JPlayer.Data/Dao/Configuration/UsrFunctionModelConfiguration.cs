@@ -24,6 +24,12 @@ namespace JPlayer.Data.Dao.Configuration
                 .HasColumnType("NVARCHAR(20)")
                 .HasMaxLength(20)
                 .IsRequired();
+            
+            builder.Property(table => table.Type)
+                .HasColumnName("TYPE")
+                .HasColumnType("NVARCHAR(20)")
+                .HasMaxLength(20)
+                .IsRequired();
 
             builder.HasAlternateKey(table => table.FunctionCode);
         }

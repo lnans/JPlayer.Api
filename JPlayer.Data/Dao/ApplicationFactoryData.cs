@@ -14,25 +14,29 @@ namespace JPlayer.Data.Dao
                 {
                     Id = 1,
                     FunctionCode = JPlayerRoles.UserRead,
-                    Name = "Ability to get users information"
+                    Name = "Ability to get users information",
+                    Type = "administration"
                 },
                 new UsrFunctionDao
                 {
                     Id = 2,
                     FunctionCode = JPlayerRoles.UserWrite,
-                    Name = "Ability to create or modify users"
+                    Name = "Ability to create or modify users",
+                    Type = "administration"
                 },
                 new UsrFunctionDao
                 {
                     Id = 3,
                     FunctionCode = JPlayerRoles.ProfileRead,
-                    Name = "Ability to get profiles information"
+                    Name = "Ability to get profiles information",
+                    Type = "administration"
                 },
                 new UsrFunctionDao
                 {
                     Id = 4,
                     FunctionCode = JPlayerRoles.ProfileWrite,
-                    Name = "Ability to create or modify profiles"
+                    Name = "Ability to create or modify profiles",
+                    Type = "administration"
                 }
             };
         }

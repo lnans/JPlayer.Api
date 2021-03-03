@@ -58,5 +58,26 @@ namespace JPlayer.Test.Administration
             Assert.IsNotNull(tiles);
             Assert.Greater(tiles.Data.Count(), 0);
         }
+
+        [Test]
+        public async Task GetMenuList_ShouldReturn_MenuItemsList()
+        {
+            // Arrange authentication
+            this._dashboardController.HttpContext.User = CreateUser("UserAdmin", "1");
+
+            // Act
+            IActionResult actionResult = await this._dashboardController.GetMenuList();
+            ObjectResult result = actionResult as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.OK, result.StatusCode);
+
+            ApiResult<IEnumerable<string>> menuItems =
+                result.Value as ApiResult<IEnumerable<string>>;
+            Assert.IsNotNull(menuItems);
+            Assert.Greater(menuItems.Data.Count(), 0);
+            
+        }
     }
 }
