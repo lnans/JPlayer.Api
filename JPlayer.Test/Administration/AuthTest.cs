@@ -133,7 +133,7 @@ namespace JPlayer.Test.Administration
             // Arrange
             this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
             CredentialsUpdateForm credentialsUpdateForm =
-                new() {CurrentPassword = "UserAdmin", NewPassword = "NewPassword"};
+                new() {CurrentPassword = "UserAdmin", NewPassword = "NewPassword", RetypePassword = "NewPassword"};
 
             // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
@@ -146,6 +146,23 @@ namespace JPlayer.Test.Administration
             UsrUserDao user = await this.DbContext.Users.FindAsync(1);
             Assert.IsTrue(PasswordHelper.Check(user.Login, "NewPassword", user.Password));
         }
+        
+        [Test]
+        public async Task UpdateCredentials_WithGoodCredButNotSame_ShouldReturn_Status401()
+        {
+            // Arrange
+            this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
+            CredentialsUpdateForm credentialsUpdateForm =
+                new() {CurrentPassword = "UserAdmin", NewPassword = "NewPassword", RetypePassword = "NotSame"};
+
+            // Act
+            IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
+            ObjectResult result = actionResult as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int) HttpStatusCode.Unauthorized, result.StatusCode);
+        }
 
         [Test]
         public async Task UpdateCredentials_WithBadCred_ShouldReturn_Status401()
@@ -153,7 +170,7 @@ namespace JPlayer.Test.Administration
             // Arrange
             this._authController.HttpContext.User = CreateUser("UserAdmin", "1");
             CredentialsUpdateForm credentialsUpdateForm =
-                new() {CurrentPassword = "WrongPassword", NewPassword = "NewPassword"};
+                new() {CurrentPassword = "WrongPassword", NewPassword = "NewPassword", RetypePassword = "NewPassword"};
 
             // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
@@ -170,7 +187,7 @@ namespace JPlayer.Test.Administration
             // Arrange
             this._authController.HttpContext.User = CreateUser("Fake", "99");
             CredentialsUpdateForm credentialsUpdateForm =
-                new() {CurrentPassword = "Password", NewPassword = "Password"};
+                new() {CurrentPassword = "Password", NewPassword = "Password", RetypePassword = "Password"};
 
             // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);
@@ -187,7 +204,7 @@ namespace JPlayer.Test.Administration
             // Arrange
             this._authController.HttpContext.User = CreateUser("Fake", null);
             CredentialsUpdateForm credentialsUpdateForm =
-                new() {CurrentPassword = "Password", NewPassword = "Password"};
+                new() {CurrentPassword = "Password", NewPassword = "Password", RetypePassword = "Password"};
 
             // Act
             IActionResult actionResult = await this._authController.UpdateCredentials(credentialsUpdateForm);

@@ -112,6 +112,11 @@ namespace JPlayer.Business.Services
                 throw new ApiNotFoundException(GlobalLabelCodes.UserNotFound);
             }
 
+            if (!credentialsUpdateForm.NewPassword.Equals(credentialsUpdateForm.RetypePassword))
+            {
+                this._logger.LogInformation("New password and retype password are not the same");
+                throw new AuthenticationException(GlobalLabelCodes.AuthPasswordNotSame);
+            }
             if (!PasswordHelper.Check(user.Login, credentialsUpdateForm.CurrentPassword, user.Password))
             {
                 this._logger.LogInformation("Wrong password");

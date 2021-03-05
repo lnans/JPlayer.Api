@@ -20,5 +20,12 @@ namespace JPlayer.Data.Dto.Credentials
         [Required]
         [MaxLength(128)]
         public string NewPassword { get; set; }
+
+        /// <summary>
+        ///     Retype password
+        /// </summary>
+        [Required]
+        [MaxLength(128)]
+        public string RetypePassword { get; set; }
     }
 }

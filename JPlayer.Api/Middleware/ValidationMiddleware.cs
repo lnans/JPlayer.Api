@@ -13,6 +13,11 @@ namespace JPlayer.Api.Middleware
 {
     public class ValidationMiddleware : IActionResult
     {
+        private readonly JsonSerializerOptions _serializeOptions = new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        
         private readonly ILogger<ValidationMiddleware> _logger =
             new Logger<ValidationMiddleware>(new NLogLoggerFactory());
 
@@ -34,7 +39,7 @@ namespace JPlayer.Api.Middleware
 
             context.HttpContext.Response.StatusCode = 400;
             context.HttpContext.Response.ContentType = "application/json";
-            await JsonSerializer.SerializeAsync(context.HttpContext.Response.Body, error);
+            await JsonSerializer.SerializeAsync(context.HttpContext.Response.Body, error, this._serializeOptions);
             await context.HttpContext.Response.Body.FlushAsync();
         }
     }

@@ -6,6 +6,7 @@
 
         public const string AuthAuthenticationFailed = "auth_authentication_failed";
         public const string AuthWrongPassword = "auth_wrong_password";
+        public const string AuthPasswordNotSame = "auth_password_not_same";
         public const string AuthNotAuthenticated = "auth_not_authenticated";
         public const string AuthNotAuthorized = "auth_not_authorized";
 
