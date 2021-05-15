@@ -13,7 +13,12 @@
         /// <summary>
         ///     Tile sub label
         /// </summary>
-        public string SubLabel { get; set; }
+        public string Icon { get; set; }
+
+        /// <summary>
+        ///     Tile link
+        /// </summary>
+        public string Link { get; set; }
 
         /// <summary>
         ///     Tile info count

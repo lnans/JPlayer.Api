@@ -30,12 +30,15 @@ namespace JPlayer.Business.Services
             this._logger.LogInformation("Getting menu list with functions {Functions}",
                 string.Join(", ", functions));
 
-            List<string> types = await this._dbContext.Functions
-                .Where(f => functions.Contains(f.FunctionCode))
-                .Select(f => f.Type)
-                .ToListAsync();
 
-            types.Add(GlobalLabelCodes.DefaultMenu);
+            List<string> types = new() {GlobalLabelCodes.DefaultMenu};
+            types.AddRange(
+                await this._dbContext.Functions
+                    .Where(f => functions.Contains(f.FunctionCode))
+                    .Select(f => f.Type)
+                    .ToListAsync()
+            );
+
             return types.Distinct();
         }
 
@@ -54,7 +57,8 @@ namespace JPlayer.Business.Services
                 tiles.Add(new TileCollectionItem
                 {
                     Label = GlobalLabelCodes.UserTileLabel,
-                    SubLabel = GlobalLabelCodes.UserTileSubLabel,
+                    Icon = GlobalLabelCodes.UserTileIcon,
+                    Link = GlobalLabelCodes.UserTileLink,
                     Count = await this._dbContext.Users.CountAsync()
                 });
 
@@ -63,14 +67,16 @@ namespace JPlayer.Business.Services
                 tiles.Add(new TileCollectionItem
                 {
                     Label = GlobalLabelCodes.ProfileTileLabel,
-                    SubLabel = GlobalLabelCodes.ProfileTileSubLabel,
+                    Icon = GlobalLabelCodes.ProfileTileIcon,
+                    Link = GlobalLabelCodes.ProfileTileLink,
                     Count = await this._dbContext.Profiles.CountAsync()
                 });
 
                 tiles.Add(new TileCollectionItem
                 {
                     Label = GlobalLabelCodes.FunctionTileLabel,
-                    SubLabel = GlobalLabelCodes.FunctionTileSubLabel,
+                    Icon = GlobalLabelCodes.FunctionTileIcon,
+                    Link = GlobalLabelCodes.FunctionTileLink,
                     Count = await this._dbContext.Functions.CountAsync()
                 });
             }

@@ -14,17 +14,20 @@
         public const string UserAlreadyExist = "user_already_exist";
         public const string UserReadOnly = "user_read_only";
         public const string UserTileLabel = "user_tile_label";
-        public const string UserTileSubLabel = "user_tile_sub_label";
+        public const string UserTileIcon = "user";
+        public const string UserTileLink = "user";
 
         public const string ProfileNotFound = "profile_not_nound";
         public const string ProfileAlreadyExist = "profile_already_exist";
         public const string ProfileReadOnly = "profile_read_only";
         public const string ProfileTileLabel = "profile_tile_label";
-        public const string ProfileTileSubLabel = "profile_tile_sub_label";
+        public const string ProfileTileIcon = "detail";
+        public const string ProfileTileLink = "profile";
 
         public const string FunctionNotFound = "function_not_found";
         public const string FunctionTileLabel = "function_tile_label";
-        public const string FunctionTileSubLabel = "function_tile_sub_label";
+        public const string FunctionTileIcon = "cog";
+        public const string FunctionTileLink = "function";
 
         public const string DefaultMenu = "dashboard";
     }
