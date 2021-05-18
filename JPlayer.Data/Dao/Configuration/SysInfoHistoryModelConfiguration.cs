@@ -8,7 +8,7 @@ namespace JPlayer.Data.Dao.Configuration
     {
         public void Configure(EntityTypeBuilder<SysInfoHistory> builder)
         {
-            builder.ToTable("SYS_MEMORY_INFO");
+            builder.ToTable("SYS_INFO_HISTORY");
 
             builder.Property(table => table.Id)
                 .HasColumnName("ID");
