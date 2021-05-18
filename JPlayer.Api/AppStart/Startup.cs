@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JPlayer.Api.Middleware;
 using JPlayer.Business;
 using JPlayer.Business.Services;
+using JPlayer.Business.SystemInfo;
 using JPlayer.Data.Dao;
 using JPlayer.Lib.Contract;
 using JPlayer.Lib.Object;
@@ -67,6 +68,7 @@ namespace JPlayer.Api.AppStart
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
             services.AddTransient<DashboardService>();
+            services.AddTransient<SystemService>();
             services.AddTransient<ObjectMapper>();
 
             // Routing
@@ -127,6 +129,9 @@ namespace JPlayer.Api.AppStart
 
             // Database
             app.EnsureDbCreated();
+
+            // System Info Worker
+            app.EnsureSystemInfoWorkerStarted();
         }
     }
 
@@ -138,6 +143,12 @@ namespace JPlayer.Api.AppStart
                 app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
             ApplicationDbContext context = serviceScope?.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             context?.Database.EnsureCreated();
+        }
+
+        public static void EnsureSystemInfoWorkerStarted(this IApplicationBuilder app)
+        {
+            IServiceScopeFactory serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>();
+            SystemInfoWorker.Instance.Start(serviceScope);
         }
 
         public static void AddCustomSwaggerGen(this IServiceCollection services, string assemblyName, string appVersion,

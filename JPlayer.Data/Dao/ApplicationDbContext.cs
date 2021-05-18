@@ -10,20 +10,29 @@ namespace JPlayer.Data.Dao
         {
         }
 
+        // USR_ tables
         public DbSet<UsrUserDao> Users { get; set; }
         public DbSet<UsrUserProfileDao> UserProfiles { get; set; }
         public DbSet<UsrProfileDao> Profiles { get; set; }
         public DbSet<UsrProfileFunctionDao> ProfileFUnctions { get; set; }
         public DbSet<UsrFunctionDao> Functions { get; set; }
 
+        // SYS_ tables
+        public DbSet<SysInfoHistory> SystemInfos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // USR_ Schema init
             modelBuilder.ApplyConfiguration(new UsrUserModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrUserProfileModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrProfileModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrProfileFunctionModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrFunctionModelConfiguration());
 
+            // SYS_ schema init
+            modelBuilder.ApplyConfiguration(new SysInfoHistoryModelConfiguration());
+
+            // Factory data
             modelBuilder.Entity<UsrFunctionDao>().HasData(ApplicationFactoryData.Functions());
             modelBuilder.Entity<UsrProfileDao>().HasData(ApplicationFactoryData.Profiles());
             modelBuilder.Entity<UsrUserDao>().HasData(ApplicationFactoryData.Users());
