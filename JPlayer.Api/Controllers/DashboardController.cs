@@ -18,7 +18,7 @@ namespace JPlayer.Api.Controllers
     ///     Controller to get tiles information for different dashboards
     /// </summary>
     [ApiController]
-    [Route("dashboard")]
+    [Route("[controller]")]
     [Produces("application/json")]
     public class DashboardController : ControllerBase
     {

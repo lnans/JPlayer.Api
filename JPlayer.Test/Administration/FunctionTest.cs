@@ -21,11 +21,11 @@ namespace JPlayer.Test.Administration
         {
             this.InitDbContext();
             this._loggerFunctionService = new NLogLoggerFactory().CreateLogger<FunctionService>();
-            this._loggerFunctionController = new NLogLoggerFactory().CreateLogger<FunctionController>();
+            this._loggerFunctionController = new NLogLoggerFactory().CreateLogger<FunctionsController>();
             this._functionService =
                 new FunctionService(this._loggerFunctionService, this.DbContext, new ObjectMapper());
             this._functionController =
-                this.CreateTestController(new FunctionController(this._loggerFunctionController,
+                this.CreateTestController(new FunctionsController(this._loggerFunctionController,
                     this._functionService));
         }
 
@@ -36,9 +36,9 @@ namespace JPlayer.Test.Administration
         }
 
         private ILogger<FunctionService> _loggerFunctionService;
-        private ILogger<FunctionController> _loggerFunctionController;
+        private ILogger<FunctionsController> _loggerFunctionController;
         private FunctionService _functionService;
-        private FunctionController _functionController;
+        private FunctionsController _functionController;
 
         [Test]
         public async Task GetMany_ShouldReturn_FunctionList_WithStatus200()

@@ -24,10 +24,10 @@ namespace JPlayer.Test.Administration
         {
             this.InitDbContext();
             this._loggerUserService = new NLogLoggerFactory().CreateLogger<UserService>();
-            this._loggerUserController = new NLogLoggerFactory().CreateLogger<UserController>();
+            this._loggerUserController = new NLogLoggerFactory().CreateLogger<UsersController>();
             this._userService = new UserService(this._loggerUserService, this.DbContext, new ObjectMapper());
             this._userController =
-                this.CreateTestController(new UserController(this._loggerUserController, this._userService));
+                this.CreateTestController(new UsersController(this._loggerUserController, this._userService));
         }
 
         [TearDown]
@@ -37,9 +37,9 @@ namespace JPlayer.Test.Administration
         }
 
         private ILogger<UserService> _loggerUserService;
-        private ILogger<UserController> _loggerUserController;
+        private ILogger<UsersController> _loggerUserController;
         private UserService _userService;
-        private UserController _userController;
+        private UsersController _userController;
 
         [Test]
         public async Task GetMany_ShouldReturn_UserList_WithStatus200()

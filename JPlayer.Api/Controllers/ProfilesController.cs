@@ -12,14 +12,14 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace JPlayer.Api.Controllers
 {
     [ApiController]
-    [Route("profiles")]
+    [Route("[controller]")]
     [Produces("application/json")]
-    public class ProfileController : ControllerBase
+    public class ProfilesController : ControllerBase
     {
-        private readonly ILogger<ProfileController> _logger;
+        private readonly ILogger<ProfilesController> _logger;
         private readonly ProfileService _profileService;
 
-        public ProfileController(ILogger<ProfileController> logger, ProfileService profileService)
+        public ProfilesController(ILogger<ProfilesController> logger, ProfileService profileService)
         {
             this._logger = logger;
             this._profileService = profileService;

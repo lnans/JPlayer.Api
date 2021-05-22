@@ -17,9 +17,6 @@ namespace JPlayer.Data.Dao
         public DbSet<UsrProfileFunctionDao> ProfileFUnctions { get; set; }
         public DbSet<UsrFunctionDao> Functions { get; set; }
 
-        // SYS_ tables
-        public DbSet<SysInfoHistory> SystemInfos { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // USR_ Schema init
@@ -28,9 +25,6 @@ namespace JPlayer.Data.Dao
             modelBuilder.ApplyConfiguration(new UsrProfileModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrProfileFunctionModelConfiguration());
             modelBuilder.ApplyConfiguration(new UsrFunctionModelConfiguration());
-
-            // SYS_ schema init
-            modelBuilder.ApplyConfiguration(new SysInfoHistoryModelConfiguration());
 
             // Factory data
             modelBuilder.Entity<UsrFunctionDao>().HasData(ApplicationFactoryData.Functions());

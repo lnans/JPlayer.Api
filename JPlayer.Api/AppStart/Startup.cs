@@ -68,18 +68,19 @@ namespace JPlayer.Api.AppStart
             services.AddTransient<ProfileService>();
             services.AddTransient<FunctionService>();
             services.AddTransient<DashboardService>();
-            services.AddTransient<SystemService>();
             services.AddTransient<ObjectMapper>();
 
             // Routing
             services.AddCustomAuthentication(authCookieName, authExpirationTime);
-            services.AddControllers().AddJsonOptions(options => options
-                .JsonSerializerOptions
-                .Converters
-                .Add(new JsonStringEnumConverter())
-            );
+            services.AddRouting(options => options.LowercaseUrls = true);
+            services.AddControllers()
+                .AddJsonOptions(options => options
+                    .JsonSerializerOptions
+                    .Converters
+                    .Add(new JsonStringEnumConverter())
+                );
             services.Configure<ApiBehaviorOptions>(options => options
-                    .InvalidModelStateResponseFactory = ctx => new ValidationMiddleware()
+                    .InvalidModelStateResponseFactory = _ => new ValidationMiddleware()
             );
 
             // Cors
@@ -109,11 +110,12 @@ namespace JPlayer.Api.AppStart
             // Cors
             app.UseCors("CustomCors");
 
-            // Middleswares
+            // Middleware
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseExceptionHandler(new ExceptionHandlerOptions {ExceptionHandler = new ExceptionMiddleware().Invoke});
+            app.UseWebSockets();
             app.UseMiddleware<LogMiddleware>();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
@@ -131,7 +133,7 @@ namespace JPlayer.Api.AppStart
             app.EnsureDbCreated();
 
             // System Info Worker
-            app.EnsureSystemInfoWorkerStarted();
+            SystemInfoWorker.Instance.Start();
         }
     }
 
@@ -143,12 +145,6 @@ namespace JPlayer.Api.AppStart
                 app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
             ApplicationDbContext context = serviceScope?.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             context?.Database.EnsureCreated();
-        }
-
-        public static void EnsureSystemInfoWorkerStarted(this IApplicationBuilder app)
-        {
-            IServiceScopeFactory serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>();
-            SystemInfoWorker.Instance.Start(serviceScope);
         }
 
         public static void AddCustomSwaggerGen(this IServiceCollection services, string assemblyName, string appVersion,

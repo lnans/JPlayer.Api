@@ -15,14 +15,14 @@ namespace JPlayer.Api.Controllers
     ///     User management controller
     /// </summary>
     [ApiController]
-    [Route("users")]
+    [Route("[controller]")]
     [Produces("application/json")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<UsersController> _logger;
         private readonly UserService _userService;
 
-        public UserController(ILogger<UserController> logger, UserService userService)
+        public UsersController(ILogger<UsersController> logger, UserService userService)
         {
             this._logger = logger;
             this._userService = userService;

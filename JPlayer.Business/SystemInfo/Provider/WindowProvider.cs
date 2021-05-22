@@ -1,29 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using JPlayer.Lib.Process;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Management;
+using JPlayer.Data.Dto.SystemInfo;
 
 namespace JPlayer.Business.SystemInfo.Provider
 {
     internal class WindowProvider : IProvider
     {
-        private readonly Dictionary<string, string> _commands = new()
+        [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Handle by the interface")]
+        public SystemInfoCollectionItem GetSystemInfo()
         {
-            {"memory", "wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /Value"}
-        };
+            // OS and Memory info
+            ManagementObjectSearcher osQuery = new("SELECT FreePhysicalMemory,TotalVisibleMemorySize,Caption FROM Win32_OperatingSystem");
+            ManagementObject osInfo = osQuery.Get().OfType<ManagementObject>().FirstOrDefault();
 
-        public Data.Dto.SystemInfo.SystemInfo GetMemoryInfo()
-        {
-            string cmdResult = ProcessCommand.WindowsRun(this._commands["memory"]);
+            string freeMemory = osInfo?["FreePhysicalMemory"].ToString();
+            string totalMemory = osInfo?["TotalVisibleMemorySize"].ToString();
+            string osName = osInfo?["Caption"].ToString();
 
-            string[] outPutLines = cmdResult.Split("\r\n");
+            // CPU info
+            ManagementObjectSearcher processorQuery = new("SELECT Name,NumberOfCores,NumberOfLogicalProcessors,LoadPercentage FROM Win32_Processor");
+            ManagementObject processorInfo = processorQuery.Get().OfType<ManagementObject>().FirstOrDefault();
 
-            Data.Dto.SystemInfo.SystemInfo systemInfo = new()
+            string processorName = processorInfo?["Name"].ToString();
+            string processorCores = processorInfo?["NumberOfCores"].ToString();
+            string processorThreads = processorInfo?["NumberOfLogicalProcessors"].ToString();
+            string processorLoad = processorInfo?["LoadPercentage"].ToString();
+
+            // Disk info
+            ManagementObjectSearcher diskQuery = new("SELECT DeviceID,FreeSpace,Size FROM Win32_LogicalDisk WHERE Size IS NOT NULL");
+            ManagementObjectCollection diskInfosList = diskQuery.Get();
+
+            List<DiskInfo> diskInfos = new();
+            foreach (ManagementBaseObject disk in diskInfosList)
+                diskInfos.Add(new DiskInfo
+                {
+                    MountPoint = disk["DeviceID"].ToString(),
+                    Total = long.Parse(disk?["Size"].ToString() ?? "0"),
+                    Free = long.Parse(disk?["FreeSpace"].ToString() ?? "0")
+                });
+
+            SystemInfoCollectionItem systemInfo = new()
             {
-                Free = long.Parse(outPutLines[0].Split('=', StringSplitOptions.RemoveEmptyEntries)[1]),
-                Total = long.Parse(outPutLines[1].Split('=', StringSplitOptions.RemoveEmptyEntries)[1])
+                MemoryInfo = new MemoryInfo
+                {
+                    Free = long.Parse(freeMemory ?? "0") * 1024,
+                    Total = long.Parse(totalMemory ?? "0") * 1024
+                },
+                CpuInfo = new CpuInfo
+                {
+                    Name = processorName,
+                    CoreCount = int.Parse(processorCores ?? "0"),
+                    CpuLoad = int.Parse(processorLoad ?? "0"),
+                    ThreadCount = int.Parse(processorThreads ?? "0")
+                },
+                DiskInfo = diskInfos,
+                Name = osName
             };
 
-            systemInfo.Used = systemInfo.Total - systemInfo.Free;
             return systemInfo;
         }
     }

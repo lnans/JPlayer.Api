@@ -11,6 +11,6 @@ namespace JPlayer.Business.SystemInfo
         ///     Get memory information
         /// </summary>
         /// <returns></returns>
-        Data.Dto.SystemInfo.SystemInfo GetMemoryInfo();
+        SystemInfoCollectionItem GetSystemInfo();
     }
 }

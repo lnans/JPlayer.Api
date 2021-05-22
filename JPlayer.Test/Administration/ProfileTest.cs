@@ -23,10 +23,10 @@ namespace JPlayer.Test.Administration
         {
             this.InitDbContext();
             this._loggerProfileService = new NLogLoggerFactory().CreateLogger<ProfileService>();
-            this._loggerProfileController = new NLogLoggerFactory().CreateLogger<ProfileController>();
+            this._loggerProfileController = new NLogLoggerFactory().CreateLogger<ProfilesController>();
             this._profileService = new ProfileService(this._loggerProfileService, this.DbContext, new ObjectMapper());
             this._profileController =
-                this.CreateTestController(new ProfileController(this._loggerProfileController, this._profileService));
+                this.CreateTestController(new ProfilesController(this._loggerProfileController, this._profileService));
         }
 
         [TearDown]
@@ -36,9 +36,9 @@ namespace JPlayer.Test.Administration
         }
 
         private ILogger<ProfileService> _loggerProfileService;
-        private ILogger<ProfileController> _loggerProfileController;
+        private ILogger<ProfilesController> _loggerProfileController;
         private ProfileService _profileService;
-        private ProfileController _profileController;
+        private ProfilesController _profileController;
 
         [Test]
         public async Task GetMany_ShouldReturn_ProfileList_WithStatus200()

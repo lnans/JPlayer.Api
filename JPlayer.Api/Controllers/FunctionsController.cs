@@ -11,14 +11,14 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace JPlayer.Api.Controllers
 {
     [ApiController]
-    [Route("functions")]
+    [Route("[controller]")]
     [Produces("application/json")]
-    public class FunctionController : ControllerBase
+    public class FunctionsController : ControllerBase
     {
         private readonly FunctionService _functionService;
-        private readonly ILogger<FunctionController> _logger;
+        private readonly ILogger<FunctionsController> _logger;
 
-        public FunctionController(ILogger<FunctionController> logger, FunctionService functionService)
+        public FunctionsController(ILogger<FunctionsController> logger, FunctionService functionService)
         {
             this._logger = logger;
             this._functionService = functionService;

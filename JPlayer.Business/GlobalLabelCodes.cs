@@ -30,5 +30,8 @@
         public const string FunctionTileLink = "function";
 
         public const string DefaultMenu = "dashboard";
+
+        public const string WebSocketOpen = "webSocket connection established";
+        public const string WebSocketClose = "webSocket connection closed";
     }
 }

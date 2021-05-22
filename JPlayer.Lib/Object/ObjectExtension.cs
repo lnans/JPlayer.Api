@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace JPlayer.Lib.Object
 {
@@ -8,7 +9,8 @@ namespace JPlayer.Lib.Object
         {
             JsonSerializerSettings settings = new()
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
             return JsonConvert.SerializeObject(value, Formatting.Indented, settings);
